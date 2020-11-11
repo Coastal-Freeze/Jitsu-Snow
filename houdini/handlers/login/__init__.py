@@ -1,8 +1,12 @@
+import asyncio
+import random
+import string
+
 from houdini import handlers
 from houdini.constants import ClientType
 from houdini.converters import VersionChkConverter
 from houdini.data.buddy import BuddyList
-from houdini.handlers import XMLPacket
+from houdini.handlers import XMLPacket, TagPacket
 
 
 @handlers.handler(XMLPacket('verChk'))
@@ -21,6 +25,26 @@ async def handle_version_check(p, version: VersionChkConverter):
         await p.close()
     else:
         await p.send_xml({'body': {'action': 'apiOK', 'r': '0'}})
+
+
+@handlers.handler(TagPacket('/place_context'), pre_login=True)
+async def handle_server_context(p, world, parameters):
+    parameters_parsed = parameters.split('&')
+    for parameter in parameters_parsed:
+        curr_param = parameter.split('=')
+        if curr_param[0] == 'tipMode':
+            p.tip_mode = curr_param[1].lower() == 'true'
+        elif curr_param[0] == 'muted':
+            p.muted = curr_param[1].lower() == 'true'
+        else:
+            p.media_url = curr_param[1]
+
+
+@handlers.handler(TagPacket('/version'), pre_login=True)
+async def handle_snow_version(p):
+    await p.send_tag('S_VERSION', 'FY15-20150206 (4954)r', '73971eecbd8923f695303b2cd04e5f70',
+                     'Tue Feb  3 14:11:56 PST 2015',
+                     '/var/lib/jenkins/jobs/BuildPlatform/workspace/metaserver_source/dimg')
 
 
 @handlers.handler(XMLPacket('rndK'))
@@ -53,3 +77,53 @@ async def get_server_presence(p, pdata):
                     buddy_worlds.append(str(int(server_id)))
 
     return '|'.join(world_populations), '|'.join(buddy_worlds)
+
+
+class SnowMatchMaking:
+
+    def __init__(self, server):
+        self.server = server
+
+        self._penguins = {'fire': [], 'water': [], 'snow': []}
+
+    async def start(self):
+        while True:
+            await self.match_queue()
+            await asyncio.sleep(1)  # blocks whole thing allow other corutines to finish
+
+    async def match_queue(self):
+        while all([len(players) > 0 for players in self._penguins.values()]):
+            match_players = []
+            match_players.append(self._penguins['fire'].pop(0))
+            match_players.append(self._penguins['water'].pop(0))
+            match_players.append(self._penguins['snow'].pop(0))
+            room_name = ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(40)])
+            tr = self.server.redis.multi_exec()
+            tr.set(f'cjsnow.{match_players[0].id}', room_name)
+            tr.set(f'cjsnow.{match_players[1].id}', room_name)
+            tr.set(f'cjsnow.{match_players[2].id}', room_name)
+
+            tr.set(f'cjsnow.{match_players[0].id}.element', 1)
+            tr.set(f'cjsnow.{match_players[1].id}.element', 2)
+            tr.set(f'cjsnow.{match_players[2].id}.element', 4)
+            await tr.execute()
+
+            for penguin in match_players:
+                await penguin.send_json(action='jsonPayload',
+                                        jsonPayload={'1': match_players[0].safe_name, '2': match_players[1].safe_name,
+                                                     '4': match_players[2].safe_name},
+                                        targetWindow=f'{match_players[0].media_url}/minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowplayerselect.swf',
+                                        triggerName='matchFound', type='immediateAction')
+
+    def add_penguin(self, p):
+        self._penguins[p.snow_ninja.current_object.Element.value].append(p)
+
+    def remove_penguin(self, p):
+        self._penguins[p.snow_ninja.current_object.Element.value].remove(p)
+
+
+@handlers.boot
+async def match_load(server):
+    server.snow_match_making = SnowMatchMaking(server)
+
+    asyncio.create_task(server.snow_match_making.start())

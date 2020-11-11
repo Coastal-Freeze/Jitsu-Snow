@@ -4,11 +4,11 @@ from xml.etree.cElementTree import Element, SubElement, tostring
 import defusedxml.cElementTree as Et
 
 from houdini.constants import ClientType
-from houdini.handlers import AuthorityError, AbortHandlerChain, XMLPacket, XTPacket
+from houdini.handlers import AuthorityError, AbortHandlerChain, XMLPacket, XTPacket, TagPacket, FrameworkPacket
+import json
 
 
 class Spheniscidae:
-
     __slots__ = ['__reader', '__writer', 'server', 'logger',
                  'peer_name', 'received_packets', 'joined_world',
                  'client_type']
@@ -55,9 +55,19 @@ class Spheniscidae:
     async def send_xt(self, handler_id, *data):
         internal_id = -1
 
-        xt_data = '%'.join(str(d) for d in data)
+        xt_data = '%'.join(map(str, data))
         line = f'%xt%{handler_id}%{internal_id}%{xt_data}%'
         await self.send_line(line)
+
+    async def send_tag(self, handler_id, *data):
+
+        tag_data = '|'.join(map(str, data))
+        line = f'[{handler_id}]{tag_data}|'
+        await self.send_line(line,'\r\n')
+
+    async def send_json(self, **data):
+        EVENT_NUM = 102 if self.server.config.type == 'world' else 101
+        await self.send_tag('UI_CLIENTEVENT', EVENT_NUM, 'receivedJson', json.dumps(data, separators=(',', ':')))
 
     async def send_xml(self, xml_dict):
         data_root = Element('msg')
@@ -78,10 +88,10 @@ class Spheniscidae:
         xml_data = tostring(data_root)
         await self.send_line(xml_data.decode('utf-8'))
 
-    async def send_line(self, data):
+    async def send_line(self, data, delimiter='\x00'):
         if not self.__writer.is_closing():
             self.logger.debug(f'Outgoing data: {data}')
-            self.__writer.write(data.encode('utf-8') + Spheniscidae.Delimiter)
+            self.__writer.write((data + delimiter).encode('utf-8'))
 
     async def close(self):
         self.__writer.close()
@@ -103,6 +113,40 @@ class Spheniscidae:
                 if not self.__writer.is_closing() and listener.client_type is None \
                         or listener.client_type == self.client_type:
                     await listener(self, packet_data)
+            self.received_packets.add(packet)
+        else:
+            self.logger.warn('Handler for %s doesn\'t exist!', packet_id)
+
+    async def __handle_tag_data(self, data):
+        self.logger.debug(f'Received Tag data: {data}')
+        parsed_data = data.split(' ')
+
+        packet_id = parsed_data[0].strip()
+        packet = TagPacket(packet_id)
+        #self.logger.debug(self.server.tag_listeners)
+        if packet in self.server.tag_listeners:
+            tag_listeners = self.server.tag_listeners[packet]
+
+            for listener in tag_listeners:
+                if not self.__writer.is_closing():
+                    await listener(self, parsed_data[1:])
+            self.received_packets.add(packet)
+        else:
+            self.logger.warn('Handler for \'%s\' doesn\'t exist!', packet_id)
+
+    async def __handle_framework_data(self, data):
+        self.logger.debug(f'Received Framework data: {data}')
+        parsed_data = json.loads(' '.join(data.split(' ')[1:]))
+
+        packet_id = parsed_data['triggerName']
+        packet = FrameworkPacket(packet_id)
+
+        if packet in self.server.framework_listeners:
+            framework_listeners = self.server.framework_listeners[packet]
+
+            for listener in framework_listeners:
+                if not self.__writer.is_closing():
+                    await listener(self, **parsed_data)
             self.received_packets.add(packet)
         else:
             self.logger.warn('Handler for %s doesn\'t exist!', packet_id)
@@ -157,8 +201,12 @@ class Spheniscidae:
         try:
             if data.startswith('<'):
                 await self.__handle_xml_data(data)
-            else:
+            elif data.startswith('%'):
                 await self.__handle_xt_data(data)
+            elif data.startswith('#'):
+                await self.__handle_framework_data(data)
+            else:
+                await self.__handle_tag_data(data)
         except AuthorityError:
             self.logger.debug(f'{self} tried to send game packet before authentication')
         except AbortHandlerChain as e:
@@ -168,10 +216,16 @@ class Spheniscidae:
         await self._client_connected()
         while not self.__writer.is_closing():
             try:
-                data = await self.__reader.readuntil(
-                    separator=Spheniscidae.Delimiter)
+                start_delimiter = await self.__reader.read(n=1)
+                if start_delimiter.decode()[0:1] == ('<' or '%'):
+                    data = await self.__reader.readuntil(
+                        separator=b'\x00')
+                else:
+                    data = await self.__reader.readuntil(
+                        separator=b'\r\n')
+
                 if data:
-                    await self.__data_received(data)
+                    await self.__data_received(start_delimiter + data)
                 else:
                     self.__writer.close()
                 await self.__writer.drain()

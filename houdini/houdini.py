@@ -12,7 +12,7 @@ from houdini.data import db
 from houdini.data.permission import PermissionCollection
 from houdini.penguin import Penguin
 from houdini.spheniscidae import Spheniscidae
-
+from houdini.constants import EmptyTile, OpenTile, EnemyTile, PenguinTile, OccupiedPenguinSpawnTile, UnoccupiedPenguinSpawnTile, UnoccupiedEnemySpawnTile, OccupiedEnemySpawnTile, ObstacleTile
 try:
     import uvloop
     uvloop.install()
@@ -22,10 +22,9 @@ except ImportError:
 import houdini.handlers
 import houdini.plugins
 
-from houdini.handlers import XTListenerManager, XMLListenerManager, DummyEventListenerManager
+from houdini.handlers import XTListenerManager, XMLListenerManager, DummyEventListenerManager, TagListenerManager, FrameworkListenerManager
 from houdini.plugins import PluginManager
 from houdini.commands import CommandManager
-
 
 class Houdini:
 
@@ -52,9 +51,16 @@ class Houdini:
 
         self.xt_listeners = XTListenerManager(self)
         self.xml_listeners = XMLListenerManager(self)
+        self.framework_listeners = FrameworkListenerManager(self)
+        self.tag_listeners = TagListenerManager(self)
         self.dummy_event_listeners = DummyEventListenerManager(self)
         self.commands = CommandManager(self)
         self.plugins = PluginManager(self)
+
+        self.tiles = [EmptyTile, OpenTile, EnemyTile, PenguinTile, OccupiedPenguinSpawnTile, UnoccupiedPenguinSpawnTile, UnoccupiedEnemySpawnTile, OccupiedEnemySpawnTile, ObstacleTile]
+
+        self.default_sprites = [100307, 100319, 100303, 100308, 100318, 100306, 100310, 100312, 100315, 100316, 100317, 100313, 100314, 100302, 100299, 100240, 100241, 100309, 100320, 100304, 1840011, 1840012, 1840010]
+        self.move_sprites = [100341, 100367, 100323]
 
         self.permissions = None
         self.chat_filter_words = None
@@ -152,9 +158,13 @@ class Houdini:
             PenguinStringCompiler.setup_anonymous_default_builder(self.anonymous_penguin_string_compiler)
 
             await self.xml_listeners.setup(houdini.handlers, exclude_load='houdini.handlers.login.login')
+            await self.tag_listeners.setup(houdini.handlers, exclude_load='houdini.handlers.login.login')
+            await self.framework_listeners.setup(houdini.handlers, exclude_load='houdini.handlers.login.login')
             await self.xt_listeners.setup(houdini.handlers)
             self.logger.info('World server started')
         else:
+            await self.tag_listeners.setup(houdini.handlers, 'houdini.handlers.login.login')
+            await self.framework_listeners.setup(houdini.handlers, 'houdini.handlers.login.login')
             await self.xml_listeners.setup(houdini.handlers, 'houdini.handlers.login.login')
             self.logger.info('Login server started')
 

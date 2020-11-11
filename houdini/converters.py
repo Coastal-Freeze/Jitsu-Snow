@@ -124,6 +124,18 @@ class _ArgumentDeserializer:
 
         return handler_call_arguments, handler_call_keywords
 
+    async def __serialized_call__(self, p, **kwargs):
+        try:
+            return await self.callback(p, **kwargs)
+        except Exception as e:
+            if self._exception_callback and isinstance(e, self._exception_class):
+                if self.instance:
+                    await self._exception_callback(self.instance, e)
+                else:
+                    await self._exception_callback(e)
+            else:
+                raise e
+
     async def __call__(self, p, data):
         try:
             handler_call_arguments, handler_call_keywords = await self._deserialize(p, data)

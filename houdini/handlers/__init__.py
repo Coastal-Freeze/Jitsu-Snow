@@ -39,6 +39,14 @@ class XMLPacket(_Packet):
     pass
 
 
+class TagPacket(_Packet):
+    pass
+
+
+class FrameworkPacket(_Packet):
+    pass
+
+
 class DummyEventPacket(_Packet):
     pass
 
@@ -50,7 +58,6 @@ class Priority(enum.Enum):
 
 
 class _Listener(_ArgumentDeserializer):
-
     __slots__ = ['priority', 'packet', 'overrides', 'before', 'after', 'client_type']
 
     def __init__(self, packet, callback, **kwargs):
@@ -69,7 +76,58 @@ class _Listener(_ArgumentDeserializer):
 
 
 class _XTListener(_Listener):
+    __slots__ = ['pre_login', 'match']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.pre_login = kwargs.get('pre_login')
+        self.match = kwargs.get('match')
+
+    async def __call__(self, p, packet_data):
+        try:
+            if not self.pre_login and not p.joined_world:
+                await p.close()
+                raise AuthorityError(f'{p} tried sending XT packet before authentication!')
+
+            if self.match is None or packet_data[:len(self.match)] == self.match:
+                await super()._check_cooldown(p)
+                super()._check_list(p)
+
+                await super().__call__(p, packet_data)
+        except CooldownError:
+            p.logger.debug(f'{p} tried to send a packet during a cooldown')
+        except ChecklistError:
+            p.logger.debug(f'{p} sent a packet without meeting checklist requirements')
+
+
+class _FrameworkListener(_Listener):
+    __slots__ = ['pre_login', 'match']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.pre_login = kwargs.get('pre_login')
+        self.match = kwargs.get('match')
+
+    async def __call__(self, p, **kwargs):
+        try:
+            if not self.pre_login and not p.joined_world:
+                await p.close()
+                raise AuthorityError(f'{p} tried sending XT packet before authentication!')
+
+
+            await super()._check_cooldown(p)
+            super()._check_list(p)
+
+            await super().__serialized_call__(p, **kwargs)
+        except CooldownError:
+            p.logger.debug(f'{p} tried to send a packet during a cooldown')
+        except ChecklistError:
+            p.logger.debug(f'{p} sent a packet without meeting checklist requirements')
+
+
+class _TagListener(_Listener):
     __slots__ = ['pre_login', 'match']
 
     def __init__(self, *args, **kwargs):
@@ -187,6 +245,14 @@ class XTListenerManager(_ListenerManager):
     ListenerClass = _XTListener
 
 
+class FrameworkListenerManager(_ListenerManager):
+    ListenerClass = _FrameworkListener
+
+
+class TagListenerManager(_ListenerManager):
+    ListenerClass = _TagListener
+
+
 class XMLListenerManager(_ListenerManager):
     ListenerClass = _XMLListener
 
@@ -204,9 +270,15 @@ class DummyEventListenerManager(_ListenerManager):
 
 def handler(packet, **kwargs):
     if not issubclass(type(packet), _Packet):
-        raise TypeError('All handlers can only listen for either XMLPacket or XTPacket.')
-
-    listener_class = _XTListener if isinstance(packet, XTPacket) else _XMLListener
+        raise TypeError('All handlers can only listen for either XMLPacket, TagPacket, FrameworkPacket or XTPacket.')
+    if isinstance(packet, XTPacket):
+        listener_class = _XTListener
+    elif isinstance(packet, XMLPacket):
+        listener_class = _XMLListener
+    elif isinstance(packet, TagPacket):
+        listener_class = _TagListener
+    else:
+        listener_class = _FrameworkListener
     return _listener(listener_class, packet, **kwargs)
 
 
@@ -219,6 +291,7 @@ def cooldown(per=1.0, rate=1, bucket_type=BucketType.Default, callback=None):
     def decorator(handler_function):
         handler_function.__cooldown = _CooldownMapping(callback, _Cooldown(per, rate, bucket_type))
         return handler_function
+
     return decorator
 
 
@@ -232,6 +305,7 @@ def check(predicate):
 
         handler_function.__checks.append(predicate)
         return handler_function
+
     return decorator
 
 
@@ -248,6 +322,7 @@ def depends_on_packet(*packets):
             if packet not in p.received_packets:
                 return False
         return True
+
     return check(check_for_packets)
 
 
@@ -257,12 +332,14 @@ def player_attribute(**attrs):
             if not getattr(p, attr) == value:
                 return False
         return True
+
     return check(check_for_attributes)
 
 
 def player_in_room(*room_ids):
     def check_room_id(_, p):
         return p.room is not None and p.room.id in room_ids
+
     return check(check_room_id)
 
 
@@ -271,6 +348,7 @@ def table(*logic):
         if p.table is not None and type(p.table.logic) in logic:
             return True
         return False
+
     return check(check_table_game)
 
 
@@ -279,4 +357,5 @@ def waddle(*waddle):
         if p.waddle is not None and type(p.waddle) in waddle:
             return True
         return False
+
     return check(check_waddle_game)

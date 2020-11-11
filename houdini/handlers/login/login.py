@@ -6,12 +6,13 @@ import bcrypt
 from sqlalchemy import func
 
 from houdini import handlers
-from houdini.constants import ClientType
+from houdini.constants import ClientType, URLConstants, FireNinja, WaterNinja, SnowNinja
 from houdini.converters import Credentials
 from houdini.crypto import Crypto
 from houdini.data.moderator import Ban
+from houdini.data.ninja import PenguinCardCollection
 from houdini.data.penguin import Penguin
-from houdini.handlers import XMLPacket
+from houdini.handlers import XMLPacket, TagPacket, FrameworkPacket
 from houdini.handlers.login import get_server_presence
 from houdini.handlers.play.navigation import get_minutes_played_today
 
@@ -116,3 +117,180 @@ async def handle_login(p, credentials: Credentials):
             await p.send_xt('l', raw_login_data, confirmation_hash, '', world_populations, buddy_presence, data.email)
     else:
         await p.send_xt('l', data.id, login_key, buddy_presence, world_populations)
+
+
+@handlers.handler(TagPacket('/login'), pre_login=True)
+@handlers.allow_once
+@handlers.depends_on_packet(TagPacket('/version'), TagPacket('/place_context'))
+async def snow_login(p, environment, p_id: int, token):
+    # server_token = await p.server.redis.get(p_id)
+    # if token != server_token:
+    # return await p.close()
+    p.logger.info('cockandball')
+    data = await Penguin.query.where(Penguin.id == p_id).gino.first()
+
+    if data is not None:
+        p.update(**data.to_dict())
+        p.cards = await PenguinCardCollection.get_collection(p.id)
+
+        await p.send_tag('S_LOGIN', p_id)  # Edit: [S_LOGIN]|swid|
+        await p.send_tag('S_WORLDTYPE', 0, 1, 0)
+        # world id | name | start place unique id | dev mode (0 = false) | none | 0 (nothing?) | crowdcontrol (
+        # nothing?) | clean name | 0 (nothing?) | stylesheetid (DOT) useless | 0 (nothing?) await p.send_tag(
+        # 'S_WORLD', 13434341, 'clubpenguin_town_en_3', '0:113140001', 0, 'none', 0, 'crowdcontrol',
+        # 'clubpenguin_town_en_3', 0, 200.5991, 0)
+        await p.send_tag('S_WORLD', 1, 'cjsnow_0', '0:0', 0, 'none', 0, p_id, 'cjsnow_0', 0, 87.5309, 0)
+        await p.send_tag('W_BASEASSETURL')
+        await p.send_tag('W_DISPLAYSTATE')
+        await p.send_tag('M_REPORT', 11, 'Max Place Count', 0, 500)  # useless?
+        await p.send_tag('M_REPORT', 12, 'Max Place Size', 0, 500)
+        await p.send_tag('M_REPORT', 16, 'Max Place Instances', 0, 100)
+        await p.send_tag('M_REPORT', 0, 'Max Users', 0, 100)
+        await p.send_tag('W_ASSETSCOMPLETE', p_id)
+        p.joined_world = True
+
+
+@handlers.handler(TagPacket('/ready'))
+@handlers.allow_once
+async def handle_penguin_ready(p):
+    # [W_INPUT]|use|4375706:1|2|3|0|use|
+    await p.send_tag('W_INPUT', 'use', '4375706:1', 2, 3, 0, 'use')
+    # input id | script id | mouse target | key mouse type | key modifier | command
+
+    for sprite in p.server.default_sprites:
+        await p.send_tag('S_LOADSPRITE', f'0:{sprite}')
+
+    await p.send_tag('UI_CROSSWORLDSWFREF', 101, 0, 'WindowManagerSwf', 0, 0, 0, 0, 0,
+                     p.media_url + URLConstants.WindowManager.value, '#receivedFromFramework')
+    await p.send_tag('UI_ALIGN', 101, 0, 0, 'center', 'scale_none')
+
+    await p.send_tag('W_PLACE', '0:0', 1, 0)
+    # tile
+    await p.send_tag('P_MAPBLOCK', 't', 1, 1,
+                     'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAAAAACyOJm3AAAADklEQVQImWNghgEGIlkADWEAiDEh28IAAAAASUVORK5CYII=')
+    # height
+    await p.send_tag('P_MAPBLOCK', 'h', 1, 1,
+                     'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAAAAACyOJm3AAAADklEQVQImWNghgEGIlkADWEAiDEh28IAAAAASUVORK5CYII=')
+    await p.send_tag('P_ZOOMLIMIT', '-1.000000', '-1.000000')
+    await p.send_tag('P_RENDERFLAGS', 0, 48)
+    await p.send_tag('P_SIZE', 9, 5)
+    await p.send_tag('P_VIEW', 5)
+    await p.send_tag('P_START', 5, 2.5, 0)
+    await p.send_tag('P_LOCKVIEW', 0)
+    await p.send_tag('P_TILESIZE', 100)
+    await p.send_tag('P_ELEVSCALE', '0.031250')
+    await p.send_tag('P_RELIEF', 1)
+    await p.send_tag('P_LOCKSCROLL', 1, 0, 0, 0)
+    await p.send_tag('P_HEIGHTMAPSCALE', 0.5, 0)
+    await p.send_tag('P_HEIGHTMAPDIVISIONS', 1)
+    await p.send_tag('P_CAMERA3D', '0.000000', '0.000000', '0.000000', '0.000000', '0.000000', '0.000000', '0.000000',
+                     '0.000000', 0, '0.000000', '0.000000', '0.000000', '0.000000', '0.000000', '0.000000',
+                     '864397819904.000000', '0.000000', 0, 0)
+    await p.send_tag('UI_BGCOLOR', 255, 255, 255)
+    await p.send_tag('P_DRAG', 0)
+    await p.send_tag('P_CAMLIMITS', 0, 0, 0, 0)
+    await p.send_tag('P_LOCKRENDERSIZE', 0, 1024, 768)
+    await p.send_tag('P_LOCKOBJECTS', 0)
+    await p.send_tag('UI_BGSPRITE', '-1:-1', 0, '0.000000', '0.000000')
+
+    await p.send_tag('P_TILE', 0, '', 0, 0, 1, '0:2', 'Empty Tile', 0, 0, 0, '0:7940006')
+    await p.send_tag('P_TILE', 1, '', 0, 0, 1, '0:2', 'blankblue', 0, 0, 0, '0:7940007')
+    await p.send_tag('P_TILE', 2, '', 0, 0, 1, '0:3', 'blankgreen', 0, 0, 0, '0:7940008')
+    await p.send_tag('P_TILE', 3, '', 0, 0, 1, '0:4', 'blankgrey', 0, 0, 0, '0:7940009')
+    await p.send_tag('P_TILE', 4, '', 0, 0, 1, '0:5', 'blankpurpl', 0, 0, 0, '0:7940010')
+    await p.send_tag('P_TILE', 5, '', 0, 0, 1, '0:6', 'blankwhite', 0, 0, 0, '0:7940011')
+
+    await p.send_tag('P_PHYSICS', 0, 0, 0, 0, 0, 0, 0, 1)
+    await p.send_tag('P_ASSETSCOMPLETE', p.id)
+
+
+@handlers.handler(FrameworkPacket('roomToRoomComplete'))
+async def handle_room_join(p, **kwargs):
+    for sprite in p.server.default_sprites:
+        await p.send_tag('S_LOADSPRITE', f'0:{sprite}')
+    await p.send_tag('O_HERE', 12, '0:1', 4.5, 2.5, 0, 1, 0, 0, 0, '', '0:1', 0, 1, 0)
+
+
+@handlers.handler(FrameworkPacket('windowManagerReady'))
+async def handle_window_manager_ready(p, **kwargs):
+    fire_cnt, water_cnt, snow_cnt = 0, 0, 0
+    for card in p.cards.values():
+        card_info = p.server.cards[card.card_id]
+        if card_info.power_id > 0:
+            if card_info.element == 'f':
+                fire_cnt += card.quantity
+            if card_info.element == 'w':
+                water_cnt += card.quantity
+            if card_info.element == 's':
+                snow_cnt += card.quantity
+
+    await p.send_json(type='immediateAction', action='setWorldId', worldId=1)
+    await p.send_json(type='immediateAction', action='setBaseAssetUrl',
+                      baseAssetUrl=p.media_url + URLConstants.BaseAssets.value)
+    await p.send_json(type='immediateAction', action='setFontPath',
+                      defaultFontPath=p.media_url + URLConstants.BaseFonts.value)
+    await p.send_json(type='playAction', action='skinRoomToRoom', url=p.media_url + URLConstants.LoadingScreen.value,
+                      className='', variant=0)
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='bottomLayer', \
+                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.ErrorHandler.value, \
+                      xPercent=0, yPercent=0)
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload={'game': 'snow', 'name': p.safe_name, \
+                                                                                'powerCardsFire': fire_cnt,
+                                                                                'powerCardsWater': water_cnt,
+                                                                                'powerCardsSnow': snow_cnt},
+                      layerName='topLayer', \
+                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.PlayerSelection.value, \
+                      xPercent=0, yPercent=0)
+
+
+@handlers.handler(FrameworkPacket('roomToRoomMinTime'))
+async def handle_room_change(p, **kwargs):
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='bottomLayer', \
+                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.CloseWindow.value, \
+                      xPercent=1, yPercent=0)
+
+
+
+@handlers.handler(FrameworkPacket('mmElementSelected'))
+async def handle_select_element(p, tipMode=False, element=None, **data):
+    p.tip_mode = tipMode
+    p.curr_object = FireNinja
+
+    if element == 'water':
+        p.curr_object = WaterNinja
+    elif element == 'snow':
+        p.curr_object = SnowNinja
+
+    p.server.snow_match_making.add_penguin(p)
+
+
+@handlers.handler(FrameworkPacket('mmCancel'))
+async def handle_cancel_matchmaking(p, **data):
+    p.server.snow_match_making.remove_penguin(p)
+
+
+@handlers.handler(FrameworkPacket('quit'))
+async def handle_quit(p, **data):
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='toolLayer', \
+                      loadDescription='', type='playAction',
+                      windowUrl=p.media_url + URLConstants.ExternalInterface.value, \
+                      xPercent=0, yPercent=0)
+
+
+@handlers.handler(FrameworkPacket('roomToRoomMinTime'))
+async def handle_room_change(p, **kwargs):
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='bottomLayer', \
+                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.CloseWindow.value, \
+                      xPercent=1, yPercent=0)
+
+
+@handlers.handler(FrameworkPacket('payloadBILogAction'))
+async def handle_payload_action(p, action, **data):
+    # TODO: handle tipmode and muted soundss
+    if action == 'funnel_prepare_to_battle_4':
+        await asyncio.sleep(3)  # Prepare to battle animation
+        await p.send_json(type='playAction', action='closeWindow',
+                          targetWindow=p.media_url + URLConstants.PlayerSelection.value)
+
+        await p.send_tag('S_GOTO', 'cjsnow_coastalfreeze', 'snow_lobby', '',
+                         f'battleMode=0&tipMode=true&isMuted=false&base_asset_url={p.media_url}')

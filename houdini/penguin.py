@@ -1,4 +1,6 @@
 import time
+from dataclasses import dataclass, field
+from typing import Dict, List, Union, Any
 
 from houdini.data import penguin
 from houdini.data.mail import PenguinPostcard
@@ -7,7 +9,6 @@ from houdini.spheniscidae import Spheniscidae
 
 
 class Penguin(Spheniscidae, penguin.Penguin):
-
     __slots__ = (
         'x', 'y',
         'frame',
@@ -16,6 +17,8 @@ class Penguin(Spheniscidae, penguin.Penguin):
         'waddle',
         'table',
         'muted',
+        'media_url',
+        'snow_ninja',
 
         'login_key',
 
@@ -57,7 +60,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
 
         self.login_timestamp = None
         self.egg_timer_minutes = None
-
+        self.snow_ninja = SnowNinja()
         self.can_dig_gold = False
 
     @property
@@ -380,8 +383,76 @@ class Penguin(Spheniscidae, penguin.Penguin):
 
         self.logger.info(f'{self.username} updated their background to \'{item.name}\' ' if item else
                          f'{self.username} removed their background item')
-        
+
+    async def add_stamina(self, stamina):
+        self.stamina += stamina
+        await self.send_json(action='jsonPayload', jsonPayload={'cycle': False, 'stamina': self.stamina},
+                             targetWindow=f'{self.media_url}minigames/cjsnow/en_US/deploy/swf/ui/windows'
+                                          f'/cardjitsu_snowui.swf',
+                             triggerName='updateStamina', type='immediateAction')
+
+    async def show_ui(self):
+        await self.send_json(action='loadWindow', assetPath='', initializationPayload={
+            'cardsAssetPath': f'{self.media_url}minigames/cjsnow/en_US/deploy/',
+            'element': self.current_object.Element.value, 'isMember': self.is_member}, layerName='bottomLayer',
+                             loadDescription='', type='playAction',
+                             windowUrl=f'{self.media_url}minigames/cjsnow/en_US/deploy/swf/ui/windows'
+                                       f'/cardjitsu_snowui.swf',
+                             xPercent=0.5, yPercent=1)
+
+    async def show_timer(self):
+        await self.send_json(action='loadWindow', assetPath='',
+                             initializationPayload={'element': self.current_object.Element.value},
+                             layerName='bottomLayer',
+                             loadDescription='', type='playAction',
+                             windowUrl=f'{self.media_url}minigames/cjsnow/en_US/deploy/swf/ui/windows'
+                                       f'/cardjitsu_snowtimer.swf',
+                             xPercent=0.5, yPercent=0)
+
+    async def show_round_notice(self, round, bonus_criteria, remaining_time=0):
+        await self.send_json(action='loadWindows', assetPath='',
+                             initializationPayload={'bonusCriteria': bonus_criteria, 'roundNumber': round,
+                                                    'remainingTime': remaining_time}, layerName='bottomLayer',
+                             loadDescription='', type='playAction',
+                             windowUrl=f'{self.media_url}minigames/cjsnow/en_US/deploy/swf/ui/windows'
+                                       f'/cardjitsu_snowrounds.swf',
+                             xPercent=0.2, yPercent=0.1)
+
+    async def show_tip(self, tip_name, bypass_tipmode=False):
+        if bypass_tipmode or self.tip_mode:
+            await self.send_json(action='loadWindow', assetPath='',
+                                 initializationPayload={'element': self.current_object.Element.value,
+                                                        'phase': tip_name},
+                                 layerName='bottomLayer', loadDescription='', type='playAction',
+                                 windowUrl=f'{self.media_url}minigames/cjsnow/en_US/deploy/swf/ui/windows'
+                                           f'/cardjitsu_snowinfotip.swf',
+                                 xPercent=0.1, yPercent=0)
+
     def __repr__(self):
         if self.id is not None:
             return f'<Penguin ID=\'{self.id}\' Username=\'{self.username}\'>'
         return super().__repr__()
+
+
+@dataclass
+class SnowNinja:
+    health: int = 100
+    stamina: int = 0
+    object_id: int = 0
+    current_object: Any = None
+    current_target: Any = None
+    target_objects: List[int] = field(default_factory=list)
+    last_object: int = 0
+    modified_object: List[int] = field(default_factory=list)
+    x: int = 0
+    y: int = 0
+    anim_done: bool = False
+    tip_mode: bool = True
+    muted: bool = False
+    ready: bool = False
+    place_ready: bool = False
+    finished_intro: bool = False
+    timer_ready: bool = False
+    screen_closed: bool = False
+    round_closed: bool = False
+    wait_task: Any = None
