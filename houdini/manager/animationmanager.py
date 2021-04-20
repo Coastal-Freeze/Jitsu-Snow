@@ -43,3 +43,4 @@ class AnimationManager:
         await player.send_tag('O_SPRITE', target_obj.id, target_obj.parent.SpriteLoopAnimation.value, 1)
         await player.send_tag('O_SPRITEANIM', target_obj.id, 1, 60, 0, 'loop', target_obj.parent.SpriteLoopDuration.value)
 
+

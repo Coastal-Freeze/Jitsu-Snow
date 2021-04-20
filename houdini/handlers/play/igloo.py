@@ -370,6 +370,7 @@ async def handle_add_igloo_map(p):
 
 
 @handlers.disconnected
+@handlers.depends_on_packet(XTPacket('j', 'js'))
 @handlers.player_attribute(joined_world=True)
 async def handle_remove_igloo_map(p):
     if p.id in p.server.open_igloos_by_penguin_id:

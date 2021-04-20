@@ -62,6 +62,8 @@ class Houdini:
         self.default_sprites = [100307, 100319, 100303, 100308, 100318, 100306, 100310, 100312, 100315, 100316, 100317, 100313, 100314, 100302, 100299, 100240, 100241, 100309, 100320, 100304, 1840011, 1840012, 1840010]
         self.move_sprites = [100341, 100367, 100323]
 
+        self.battles = {}
+        
         self.permissions = None
         self.chat_filter_words = None
 
@@ -74,6 +76,7 @@ class Houdini:
         self.stamps = None
         self.cards = None
         self.postcards = None
+        self.snow_world = False
         self.puffles = None
         self.puffle_items = None
         self.puffle_food_treasure = None
@@ -110,7 +113,7 @@ class Houdini:
 
         self.logger = logging.getLogger('houdini')
         universal_handler = RotatingFileHandler(general_log_file,
-                                                maxBytes=2097152, backupCount=3, encoding='utf-8')
+                                                maxBytes=2097152, backupCount=20, encoding='utf-8')
 
         error_handler = logging.FileHandler(errors_log_file)
         console_handler = logging.StreamHandler(stream=sys.stdout)
@@ -142,6 +145,7 @@ class Houdini:
 
         self.redis = await aioredis.create_redis_pool('redis://{}:{}'.format(
             self.config.redis_address, self.config.redis_port),
+            password=self.config.database_password,
             minsize=5, maxsize=10)
 
         if self.config.type == 'world':
@@ -162,9 +166,12 @@ class Houdini:
             await self.framework_listeners.setup(houdini.handlers, exclude_load='houdini.handlers.login.login')
             await self.xt_listeners.setup(houdini.handlers)
             self.logger.info('World server started')
-        else:
+        elif self.config.type == 'snow_login':
+            self.client_class = Penguin
             await self.tag_listeners.setup(houdini.handlers, 'houdini.handlers.login.login')
             await self.framework_listeners.setup(houdini.handlers, 'houdini.handlers.login.login')
+        else:
+            await self.tag_listeners.setup(houdini.handlers, 'houdini.handlers.login.login')
             await self.xml_listeners.setup(houdini.handlers, 'houdini.handlers.login.login')
             self.logger.info('Login server started')
 

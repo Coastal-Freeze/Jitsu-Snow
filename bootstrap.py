@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Boot a Houdini server')
     parser.add_argument('type', action='store', default='login',
-                        choices=['login', 'world'], help='Name of the server to boot')
+                        choices=['login', 'world', 'snow_login'], help='Name of the server to boot')
 
     parser.add_argument('-id', action='store', default=3100, type=int, help='Houdini server ID')
     parser.add_argument('-n', '--name', action='store', help='Houdini server name')
@@ -45,39 +45,38 @@ if __name__ == '__main__':
                                dest='logging_error_path',
                                help='Error log path')
     logging_group.add_argument('-ll', '--logging-level', action='store',
-                               default='INFO',
+                               default='DEBUG',
                                dest='logging_level',
                                help='Logging level')
 
     database_group = parser.add_argument_group('database')
     database_group.add_argument('-da', '--database-address', action='store',
                                 dest='database_address',
-                                default='localhost',
+                                default='',
                                 help='Postgresql database address')
     database_group.add_argument('-du', '--database-username', action='store',
                                 dest='database_username',
-                                default='postgres',
+                                default='',
                                 help='Postgresql database username')
     database_group.add_argument('-dp', '--database-password', action='store',
                                 dest='database_password',
-                                default='password',
+                                default='',
                                 help='Postgresql database password')
     database_group.add_argument('-dn', '--database-name', action='store',
                                 dest='database_name',
-                                default='postgres',
+                                default='coastaldb',
                                 help='Postgresql database name')
 
     redis_group = parser.add_argument_group('redis')
     redis_group.add_argument('-ra', '--redis-address', action='store',
                              dest='redis_address',
-                             default='localhost',
+                             default='',
                              help='Redis server address')
     redis_group.add_argument('-rp', '--redis-port', action='store',
                              dest='redis_port',
                              type=int,
                              default=6379,
                              help='Redis server port')
-
     command_group = parser.add_argument_group('commands')
     command_group.add_argument('-cp', '--command-prefix', action='store', dest='command_prefix',
                                nargs='*',

@@ -213,6 +213,7 @@ async def handle_toggle_best_character(p, character_id: int):
 
 
 @handlers.disconnected
+@handlers.depends_on_packet(XTPacket('b', 'gb'))
 @handlers.player_attribute(joined_world=True)
 async def handle_disconnect_buddy(p):
     if p.character is not None:

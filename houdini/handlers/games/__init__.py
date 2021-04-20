@@ -45,6 +45,7 @@ async def handle_overdose_key(p, room: Room):
 
 
 @handlers.disconnected
+@handlers.depends_on_packet(XTPacket('j', 'js'))
 @handlers.player_attribute(joined_world=True)
 async def disconnect_overdose_key(p):
     if p.room is not None and p.room.game:

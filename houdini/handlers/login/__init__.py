@@ -37,11 +37,11 @@ async def handle_server_context(p, world, parameters):
         elif curr_param[0] == 'muted':
             p.muted = curr_param[1].lower() == 'true'
         else:
-            p.media_url = curr_param[1]
+            p.media_url = curr_param[1].rstrip()
 
 
 @handlers.handler(TagPacket('/version'), pre_login=True)
-async def handle_snow_version(p):
+async def handle_snow_version_check(p):
     await p.send_tag('S_VERSION', 'FY15-20150206 (4954)r', '73971eecbd8923f695303b2cd04e5f70',
                      'Tue Feb  3 14:11:56 PST 2015',
                      '/var/lib/jenkins/jobs/BuildPlatform/workspace/metaserver_source/dimg')
@@ -91,13 +91,14 @@ class SnowMatchMaking:
             await self.match_queue()
             await asyncio.sleep(1)  # blocks whole thing allow other corutines to finish
 
+
     async def match_queue(self):
         while all([len(players) > 0 for players in self._penguins.values()]):
             match_players = []
             match_players.append(self._penguins['fire'].pop(0))
             match_players.append(self._penguins['water'].pop(0))
             match_players.append(self._penguins['snow'].pop(0))
-            room_name = ''.join([random.choice(string.ascii_uppercase + string.digits) for _ in range(40)])
+            room_name = match_players[0].id
             tr = self.server.redis.multi_exec()
             tr.set(f'cjsnow.{match_players[0].id}', room_name)
             tr.set(f'cjsnow.{match_players[1].id}', room_name)
@@ -106,14 +107,10 @@ class SnowMatchMaking:
             tr.set(f'cjsnow.{match_players[0].id}.element', 1)
             tr.set(f'cjsnow.{match_players[1].id}.element', 2)
             tr.set(f'cjsnow.{match_players[2].id}.element', 4)
-            await tr.execute()
-
+            await tr.execute()    
+            
             for penguin in match_players:
-                await penguin.send_json(action='jsonPayload',
-                                        jsonPayload={'1': match_players[0].safe_name, '2': match_players[1].safe_name,
-                                                     '4': match_players[2].safe_name},
-                                        targetWindow=f'{match_players[0].media_url}/minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowplayerselect.swf',
-                                        triggerName='matchFound', type='immediateAction')
+                await penguin.send_json(action='jsonPayload', jsonPayload={'1': match_players[0].safe_name, '2':match_players[1].safe_name, '4':match_players[2].safe_name}, targetWindow=f'{match_players[0].media_url}minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowplayerselect.swf', triggerName='matchFound', type='immediateAction')
 
     def add_penguin(self, p):
         self._penguins[p.snow_ninja.current_object.Element.value].append(p)
@@ -124,6 +121,10 @@ class SnowMatchMaking:
 
 @handlers.boot
 async def match_load(server):
+    if server.config.type == 'login':
+        return
+
     server.snow_match_making = SnowMatchMaking(server)
+    print(server.snow_match_making)
 
     asyncio.create_task(server.snow_match_making.start())

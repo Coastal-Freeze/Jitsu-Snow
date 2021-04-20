@@ -11,7 +11,7 @@ import json
 class Spheniscidae:
     __slots__ = ['__reader', '__writer', 'server', 'logger',
                  'peer_name', 'received_packets', 'joined_world',
-                 'client_type']
+                 'client_type', 'media_url']
 
     Delimiter = b'\x00'
 
@@ -62,11 +62,11 @@ class Spheniscidae:
     async def send_tag(self, handler_id, *data):
 
         tag_data = '|'.join(map(str, data))
-        line = f'[{handler_id}]{tag_data}|'
+        line = f'[{handler_id}]|{tag_data}|'
         await self.send_line(line,'\r\n')
 
     async def send_json(self, **data):
-        EVENT_NUM = 102 if self.server.config.type == 'world' else 101
+        EVENT_NUM = 102 if self.server.snow_world else 101
         await self.send_tag('UI_CLIENTEVENT', EVENT_NUM, 'receivedJson', json.dumps(data, separators=(',', ':')))
 
     async def send_xml(self, xml_dict):

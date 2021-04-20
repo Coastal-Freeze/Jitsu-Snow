@@ -185,6 +185,7 @@ async def handle_refresh_room(p):
 
 
 @handlers.disconnected
+@handlers.depends_on_packet(XTPacket('j', 'js'))
 @handlers.player_attribute(joined_world=True)
 async def handle_disconnect_room(p):
     if p.room.blackhole:
