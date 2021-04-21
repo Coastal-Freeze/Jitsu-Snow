@@ -412,8 +412,18 @@ class ObjectManager():
         x, y = random.randint(x_min, x_max), random.randint(y_min, y_max)
         while self.map[x][y].owner is not None:
             x, y = random.randint(x_min, x_max), random.randint(y_min, y_max)
+            if self.obstructed(x, y):
+                continue
 
         return x, y
+
+    def obstructed(self, x, y):
+        for obj in self.obstacles:
+            adjusted_x = round(obj.x + obj.parent.XCoordinateOffset.value, obj.parent.XCoordinateDecimals.value)
+            adjusted_y = round(obj.y + obj.parent.YCoordinateOffset.value, obj.parent.YCoordinateDecimals.value)
+            if x == adjusted_x and y == adjusted_y:
+                return True
+        return False
 
     def get_enemy_by_id(self, enemy_id):
         for enemy in self.enemies:
@@ -500,7 +510,6 @@ class ObjectManager():
                              0, 1, 0, 0, 0, player_hp_obj.name, player_hp_obj.template_id, 0, 1, 0)
             await p.send_tag('O_SPRITEANIM', player_hp_obj.id, 1, 1, 0, 'play_once', 0)
             await p.send_tag('O_SPRITE', player_hp_obj.id, '0:100395', 1, '')
-
 
 @dataclass
 class Object():
