@@ -412,18 +412,10 @@ class ObjectManager():
         x, y = random.randint(x_min, x_max), random.randint(y_min, y_max)
         while self.map[x][y].owner is not None:
             x, y = random.randint(x_min, x_max), random.randint(y_min, y_max)
-            if self.obstructed(x, y):
-                continue
+
 
         return x, y
 
-    def obstructed(self, x, y):
-        for obj in self.obstacles:
-            adjusted_x = round(obj.x + obj.parent.XCoordinateOffset.value, obj.parent.XCoordinateDecimals.value)
-            adjusted_y = round(obj.y + obj.parent.YCoordinateOffset.value, obj.parent.YCoordinateDecimals.value)
-            if x == adjusted_x and y == adjusted_y:
-                return True
-        return False
 
     def get_enemy_by_id(self, enemy_id):
         for enemy in self.enemies:
@@ -453,6 +445,12 @@ class ObjectManager():
         for tile in player.snow_ninja.heal_target_objects:
             if tile.owner in [FireNinja, WaterNinja]:
                 return True
+                
+    def get_direction(self, x, xcompare):
+        if x >= xcompare:    
+            return 'left'
+        elif x <= xcompare:
+            return 'right'
         
 
     def get_tile_by_id(self, tile_id):
