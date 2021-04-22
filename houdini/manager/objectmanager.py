@@ -433,6 +433,7 @@ class ObjectManager:
         for tile in player.snow_ninja.heal_target_objects:
             if tile.owner in [FireNinja, WaterNinja]:
                 return True
+        return False
 
     def get_direction(self, x, xcompare):
         if x >= xcompare:
