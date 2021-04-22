@@ -6,7 +6,7 @@ from houdini.constants import OccupiedEnemySpawnTile
 from houdini.constants import URLConstants
 
 
-class RoundManager():
+class RoundManager:
 
     def __init__(self, room):
         self.room = room
@@ -21,19 +21,22 @@ class RoundManager():
         self.callback = None
 
         self.randomize_bonus_criteria()
-        
 
     def randomize_bonus_criteria(self):
         self.bonus_criteria = random.choice([BonusRoundType.NO_NINJAS_DOWN,
-                                             BonusRoundType.FULL_HEALTH])  # BonusRoundType.BEAT_THE_CLOCK, BonusRoundType.FULL_HEALTH])
+                                             BonusRoundType.FULL_HEALTH])
+        # BonusRoundType.BEAT_THE_CLOCK,
+        # BonusRoundType.FULL_HEALTH])
 
     def deal(self):
         for penguin in self.room.penguins:
+            penguin_element = penguin.snow_ninja.ninja.CardElement.value
             card_temp = [penguin.server.cards[card.card_id]
-                                        for card in penguin.cards.values() 
-                                        for _ in range(card.quantity + card.member_quantity)]
+                         for card in penguin.cards.values()
+                         for _ in range(card.quantity + card.member_quantity)]
             penguin.snow_ninja.cards = [card for card in card_temp
-                                        if card.power_id != 0 and card.element == penguin.snow_ninja.ninja.CardElement.value]
+                                        if
+                                        card.power_id != 0 and card.element == penguin_element]
             self.room.penguins[0].logger.error(penguin.snow_ninja.cards)
             self.dealt = True
 
@@ -47,7 +50,7 @@ class RoundManager():
         await self.load_ui()
         for p in self.room.penguins:
             p.snow_ninja.ready_object['round_closed'] = False
-            
+
         if not self.dealt:
             self.deal()
 
@@ -60,11 +63,11 @@ class RoundManager():
             adjusted_y = round(enemy_obj.y + enemy_obj.parent.YCoordinateOffset.value,
                                enemy_obj.parent.YCoordinateDecimals.value)
 
-            await self.room.send_tag('O_HERE', enemy_obj.id, enemy_obj.art_index, adjusted_x, adjusted_y, 0, 1, 0, 0, 0, \
+            await self.room.send_tag('O_HERE', enemy_obj.id, enemy_obj.art_index, adjusted_x, adjusted_y, 0, 1, 0, 0, 0,
                                      enemy_obj.name, enemy_obj.template_id, 0, 1, 0)
             await self.room.send_tag('P_TILECHANGE', enemy_obj.x, enemy_obj.y, OccupiedEnemySpawnTile.TileUrl.value)
 
-            await self.room.send_tag('O_HERE', enemy_hp_obj.id, enemy_hp_obj.art_index, adjusted_x, adjusted_y, 0, 1, 0, \
+            await self.room.send_tag('O_HERE', enemy_hp_obj.id, enemy_hp_obj.art_index, adjusted_x, adjusted_y, 0, 1, 0,
                                      0, 0, enemy_hp_obj.name, enemy_hp_obj.template_id, 0, 1, 0)
             await self.room.send_tag('O_SPRITEANIM', enemy_hp_obj.id, 1, 1, 0, 'play_once', 0)
             await self.room.send_tag('O_SPRITE', enemy_hp_obj.id, '0:100395', 1, '')
@@ -72,7 +75,7 @@ class RoundManager():
             await self.room.send_tag('O_ANIM', enemy_obj.id, '0:100379', 'play_once', 700, 1, 0, enemy_obj.id, i + 10,
                                      0, 0)
             await self.room.sound_manager.play_sound('0:1840009')
-            await self.room.send_tag('O_ANIM', enemy_obj.id, enemy_obj.owner.IdleAnimation.value, 'loop', \
+            await self.room.send_tag('O_ANIM', enemy_obj.id, enemy_obj.owner.IdleAnimation.value, 'loop',
                                      enemy_obj.owner.IdleAnimationDuration.value, 1, 1, enemy_obj.id, i + 11, 0, 0)
         # 0 :100305: sly , 0:100297:tank, 0:100311: scrap
 
@@ -95,7 +98,7 @@ class RoundManager():
             await asyncio.sleep(2)  # catch up
             self.ticks = 9
             while True:
-                await self.room.send_json(action='jsonPayload', jsonPayload={'tick': self.ticks}, \
+                await self.room.send_json(action='jsonPayload', jsonPayload={'tick': self.ticks},
                                           targetWindow=self.room.penguins[0].media_url + URLConstants.SnowTimer.value,
                                           triggerName='update', type='immediateAction')
 
@@ -127,25 +130,25 @@ class RoundManager():
 
     async def show_timer(self):
         await self.room.send_json(action='jsonPayload', jsonPayload=[None],
-                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowUI.value, \
+                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowUI.value,
                                   triggerName='enableCards', type='immediateAction')
         await self.show_timer_confirm()
         await self.room.send_json(action='jsonPayload', jsonPayload=[None],
-                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowTimer.value, \
+                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowTimer.value,
                                   triggerName='Timer_Start', type='immediateAction')
 
     async def hide_timer(self):
         await self.room.send_json(action='jsonPayload', jsonPayload=[None],
-                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowTimer.value, \
+                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowTimer.value,
                                   triggerName='skipToTransitionOut', type='immediateAction')
 
         await self.room.object_manager.remove_movement_plans()
 
         await self.room.send_json(action='jsonPayload', jsonPayload=[None],
-                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowUI.value, \
+                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowUI.value,
                                   triggerName='disableCards', type='immediateAction')
         await self.room.send_json(action='jsonPayload', jsonPayload=[None],
-                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowTimer.value, \
+                                  targetWindow=self.room.penguins[0].media_url + URLConstants.SnowTimer.value,
                                   triggerName='disableConfirm', type='immediateAction')
 
     async def load_ui(self):

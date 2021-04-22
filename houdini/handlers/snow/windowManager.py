@@ -35,20 +35,20 @@ async def handle_window_manager_ready(p, **kwargs):
                       layerName='topLayer', \
                       loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.PlayerSelection.value, \
                       xPercent=0, yPercent=0)
-           
-           
+
+
 async def join_battle(p):
     tr = p.server.redis.multi_exec()
     tr.get(f'cjsnow.{p.id}')
     tr.get(f'cjsnow.{p.id}.element')
     tr.delete(f'cjsnow.{p.id}', f'cjsnow.{p.id}.element')
     match_id, element, _ = await tr.execute()
-    
+
     if match_id is None or element is None:
         return await p.close()
 
     match_id, element = int(match_id), int(element)
-    
+
     p.snow_ninja.ninja = FireNinja
     if element == 2:
         p.snow_ninja.ninja = WaterNinja
@@ -57,7 +57,7 @@ async def join_battle(p):
 
     if match_id not in p.server.battles:
         p.server.battles[match_id] = SnowBattle(p.server)
-        
+
     await p.server.battles[match_id].add_penguin(p)
     while len(p.room.penguins) < 3:
         p.logger.info('Waiting for Ninjas to join the Battle')
@@ -66,13 +66,14 @@ async def join_battle(p):
             break
         await asyncio.sleep(1)
     p.room.object_manager.update_player_coordinates(p)
-    await p.send_tag('O_SPRITE', '10', '0:100380', '0', '') #6740003 - craig valley bg / 0:6740006 - forest
-    await p.send_tag('O_SPRITE', '11', '0:1', '0', '') # 6740004 - foreground / 0:6740007
+    await p.send_tag('O_SPRITE', '10', '0:100380', '0', '')  # 6740003 - craig valley bg / 0:6740006 - forest
+    await p.send_tag('O_SPRITE', '11', '0:1', '0', '')  # 6740004 - foreground / 0:6740007
     await p.room.object_manager.send_map(p)
     await p.send_json(action='closeCjsnowRoomToRoom', targetWindow='cardjitsu_snowplayerselect.swf',
-                           type='immediateAction')
+                      type='immediateAction')
     await p.send_tag('FX_PLAYSOUND', '0:1840002', 1, 1, 75, -1, 0, -1)
-             
+
+
 @handlers.handler(FrameworkPacket('windowReady'))
 async def handle_ready_window(p, windowId=None, **data):
     if windowId == 'cardjitsu_snowtimer.swf':
@@ -85,4 +86,3 @@ async def handle_ready_window(p, windowId=None, **data):
                 await p.room.show_tip(TipType.MOVE.value)
     elif windowId == 'cardjitsu_snowclose.swf' and p.server.snow_world:
         asyncio.create_task(join_battle(p))
-

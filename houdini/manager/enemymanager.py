@@ -2,11 +2,10 @@ import asyncio
 from dataclasses import dataclass
 
 import numpy as np
-
+import typing
 from houdini.constants import EnemySly, EnemyScrap, EnemyTank, UnoccupiedEnemySpawnTile
 from houdini.constants import FireNinja, WaterNinja, SnowNinja
 from houdini.constants import MapConstants, EnemyObject, HPObject, PenguinObject
-import random
 
 
 class EnemyManager:
@@ -16,7 +15,6 @@ class EnemyManager:
         self.object_manager = room.object_manager
         self.animation_manager = room.animation_manager
         self.sound_manager = room.sound_manager
-        
 
         self.current_enemies = []
         self.default_enemies = [EnemySly, EnemyScrap, EnemyTank]
@@ -25,7 +23,6 @@ class EnemyManager:
         for enemy in self.current_enemies:
             if enemy.id == enemy_id:
                 self.current_enemies.remove(enemy)
-
 
     def generate_enemies(self):
         self.object_manager.generate_enemies()
@@ -36,7 +33,7 @@ class EnemyManager:
     async def do_enemy_turn(self):
         for enemy in self.current_enemies:
             players = self.get_nearby_players(enemy.current_object.x, enemy.current_object.y)
-            if len(players) == 0:  # No surronding users, let's move
+            if len(players) == 0:  # No surrounding users, let's move
                 distances = [np.linalg.norm(
                     np.array([player.snow_ninja.current_object.x, player.snow_ninja.current_object.y])
                     - np.array([enemy.current_object.x, enemy.current_object.y])) for player in self.room.penguins if
@@ -56,19 +53,13 @@ class EnemyManager:
             else:  # Attack nearby user
                 for ninja in players:
                     penguin = self.object_manager.get_penguin_by_ninja_type(ninja)
-                    if penguin.snow_ninja.damage <= penguin.snow_ninja.ninja.HealthPoints.value:
+                    if penguin.is_alive:
                         return await self.enemy_damage(penguin, enemy)
                     else:
                         return await self.room.player_manager.player_death(penguin)
             await asyncio.sleep(1.5)
 
     async def enemy_damage(self, p, enemy):
-        if enemy.parent == EnemyTank and not \
-                (enemy.current_object.x - 1 == p.snow_ninja.current_object.x or
-                 enemy.current_object.x + 1 == p.snow_ninja.current_object.x or
-                 enemy.current_object.y - 1 == p.snow_ninja.current_object.y or
-                 enemy.current_object.y + 1 == p.snow_ninja.current_object.y):
-            return
         damage = enemy.parent.Attack.value
         await self.room.animation_manager.play_animation(enemy.current_object,
                                                          enemy.parent.AttackAnimation.value, 'play_once',
@@ -78,8 +69,8 @@ class EnemyManager:
                                                          enemy.parent.IdleAnimationDuration.value)
         await self.room.sound_manager.play_sound(enemy.parent.AttackAnimationSound.value)
         damage_number, tile_particle = self.object_manager.generate_damage_particle(p.snow_ninja.ninja,
-                                                                                         p.snow_ninja.current_object.x,
-                                                                                         p.snow_ninja.current_object.y)
+                                                                                    p.snow_ninja.current_object.x,
+                                                                                    p.snow_ninja.current_object.y)
 
         adjusted_x = round(tile_particle.x + PenguinObject.XCoordinateOffset.value,
                            PenguinObject.XCoordinateDecimals.value)
@@ -109,7 +100,6 @@ class EnemyManager:
 
         await self.room.sound_manager.play_sound(p.snow_ninja.ninja.HitAnimationSound.value)
 
-        
         p.snow_ninja.damage = max(0, min(p.snow_ninja.damage + damage, p.snow_ninja.ninja.HealthPoints.value))
         hpbar = self.object_manager.player_hpbars[
             self.object_manager.players.index(p.snow_ninja.current_object)]
@@ -136,21 +126,21 @@ class EnemyManager:
         adjusted_x = round(x + EnemyObject.XCoordinateOffset.value, EnemyObject.XCoordinateDecimals.value)
         adjusted_y = round(y + EnemyObject.YCoordinateOffset.value, EnemyObject.YCoordinateDecimals.value)
 
-        await self.room.send_tag('O_SLIDE', enemy.current_object.id, adjusted_x, adjusted_y, \
+        await self.room.send_tag('O_SLIDE', enemy.current_object.id, adjusted_x, adjusted_y,
                                  128, enemy.parent.MoveAnimationDuration.value)
 
-        await self.room.animation_manager.play_animation(enemy.current_object, \
-                                                         enemy.parent.MoveAnimation.value, 'play_once', \
+        await self.room.animation_manager.play_animation(enemy.current_object,
+                                                         enemy.parent.MoveAnimation.value, 'play_once',
                                                          enemy.parent.MoveAnimationDuration.value)
-        await self.room.animation_manager.play_animation(enemy.current_object, \
-                                                         enemy.parent.IdleAnimation.value, 'loop', \
+        await self.room.animation_manager.play_animation(enemy.current_object,
+                                                         enemy.parent.IdleAnimation.value, 'loop',
                                                          enemy.parent.IdleAnimationDuration.value)
 
         await self.room.sound_manager.play_sound(enemy.parent.MoveAnimationSound.value)
 
         adjusted_x = round(x + HPObject.XCoordinateOffset.value, HPObject.XCoordinateDecimals.value)
         adjusted_y = round(y + HPObject.YCoordinateOffset.value, HPObject.YCoordinateDecimals.value)
-        await self.room.send_tag('O_SLIDE', enemy_hp_bar.id, adjusted_x, adjusted_y, \
+        await self.room.send_tag('O_SLIDE', enemy_hp_bar.id, adjusted_x, adjusted_y,
                                  128, enemy.parent.MoveAnimationDuration.value)
 
         self.object_manager.map[x][y].owner = enemy.parent
@@ -250,7 +240,7 @@ class EnemyManager:
                 neighbors.append((x, y))
 
         return neighbors
-        
+
     async def enemy_death(self, enemy, hpbar):
         await self.room.animation_manager.play_animation(enemy,
                                                          enemy.owner.KnockoutAnimation.value, 'play_once',
@@ -260,14 +250,15 @@ class EnemyManager:
         await self.room.send_tag('O_GONE', enemy.id)
         await self.room.send_tag('O_GONE', hpbar.id)
         self.room.enemy_manager.delete_enemy(enemy.id)
-        self.enemies.remove(enemy)
+        self.object_manager.enemies.remove(enemy)
         await self.room.sound_manager.play_sound('0:1840006')
-        if len(self.enemies) == 0:
+        if len(self.object_manager.enemies) == 0:
             self.room.round_manager.round += 1
             await self.room.round_manager.show_round_notice()
 
+
 @dataclass
-class Enemy():
+class Enemy:
     id: int
 
     current_object: 'typing.Any'
@@ -275,7 +266,7 @@ class Enemy():
 
 
 @dataclass
-class Node():
+class Node:
     parent: 'typing.Any'
     position: 'typing.Any'
 

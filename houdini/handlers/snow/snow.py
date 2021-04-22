@@ -5,7 +5,7 @@ import asyncio
 
 
 @handlers.handler(TagPacket('/set_crossworld_ui'), pre_login=True)
-async def handle_crossworld(p, switch: bool):
+async def handle_cross_world(p, switch: bool):
     p.server.snow_world = switch
 
 
@@ -123,7 +123,7 @@ async def handle_payload_action(p, action, **data):
         await p.send_json(type='playAction', action='closeWindow',
                           targetWindow=p.media_url + URLConstants.PlayerSelection.value)
 
-        worldname = cjsnow_battle1 if 'game_type' == 'normal' else 'cjsnow_tusk'
+        worldname = 'cjsnow_battle1' if 'game_type' == 'normal' else 'cjsnow_tusk'
 
         await p.send_tag('S_GOTO', 'cjsnow_coastalfreeze', 'snow_lobby', '',
                          f'battleMode=0&tipMode={p.snow_ninja.tip_mode}&isMuted=false&base_asset_url={p.media_url}')

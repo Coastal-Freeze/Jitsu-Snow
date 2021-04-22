@@ -88,7 +88,7 @@ async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: fl
             await p.room.object_manager.plan_movement(p, tile)
     elif p.room.object_manager.get_enemy_by_id(tile_id) is not None:
         await p.room.object_manager.select_enemy(p, tile_id)
-    elif p.room.object_manager.get_heal_target_by_id(tile_id) is not None:
+    elif p.room.object_manager.get_heal_target_by_id(p, tile_id) is not None:
         await p.room.object_manager.heal_penguin(p, tile_id)
 
 

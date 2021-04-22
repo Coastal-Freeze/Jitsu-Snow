@@ -1,17 +1,16 @@
-from houdini.constants import MapConstants, MovementTile, EnemyObject, \
-    PenguinObject, HPObject, ObstacleObject, EnemyTarget, SelectedEnemyTarget, UnoccupiedPenguinSpawnTile, \
-    SelectedPenguinTarget, PenguinTarget
-from houdini.constants import FireNinja, WaterNinja, SnowNinja
-from houdini.constants import EnemySly, EnemyTank, EnemyScrap
-from houdini.constants import OccupiedPenguinSpawnTile
-
-from dataclasses import dataclass
-
 import asyncio
 import random
+from dataclasses import dataclass
+
+from houdini.constants import FireNinja, WaterNinja, SnowNinja
+from houdini.constants import MapConstants, MovementTile, EnemyObject, \
+    PenguinObject, HPObject, ObstacleObject, EnemyTarget, SelectedEnemyTarget, SelectedPenguinTarget, PenguinTarget
+from houdini.constants import OccupiedPenguinSpawnTile
+
+import typing
 
 
-class ObjectManager():
+class ObjectManager:
 
     def __init__(self, room):
         self.room = room
@@ -44,7 +43,7 @@ class ObjectManager():
             self.map.append([])
 
             for row in range(MapConstants.BoardHeight.value):
-                tile_object = self.generate_object(MovementTile.ArtIndex.value, MovementTile.TemplateId.value, \
+                tile_object = self.generate_object(MovementTile.ArtIndex.value, MovementTile.TemplateId.value,
                                                    column, row, parent=MovementTile)
 
                 self.map[column].append(tile_object)
@@ -63,7 +62,7 @@ class ObjectManager():
         for i, ninja in enumerate(ninjas):
             y_coordinate = 2 * i
             self.generate_player_object(MapConstants.PlayerObjectIds.value[i], ninja, 0, y_coordinate)
-            self.generate_player_hp_object(0, y_coordinate, ninjaType=ninja)
+            self.generate_player_hp_object(0, y_coordinate, ninja_type=ninja)
 
             print('\n\n', self.players, '\n\n', self.player_hpbars, '\n\n')
 
@@ -74,21 +73,21 @@ class ObjectManager():
         for i in range(count):
             x, y = self.find_open_coordinate(7, 8, 0, 4)
             self.generate_enemy_object(self.room.enemy_manager.default_enemies[0], x, y)
-            self.generate_enemy_hp_object(x, y, enemyType=self.room.enemy_manager.default_enemies[0])
+            self.generate_enemy_hp_object(x, y, enemy_type=self.room.enemy_manager.default_enemies[0])
 
             random.shuffle(self.room.enemy_manager.default_enemies)
 
     def generate_check_mark(self, ninja_type, x, y):
-        check_mark = self.generate_object('0:1', '0:30049', \
+        check_mark = self.generate_object('0:1', '0:30049',
                                           x, y, parent=ninja_type)
 
         self.check_marks.append(check_mark)
         return check_mark
 
     def generate_damage_particle(self, ninja_type, x, y):
-        damage_number = self.generate_object('0:1', '0:30059', \
+        damage_number = self.generate_object('0:1', '0:30059',
                                              x, y, parent=ninja_type)
-        tile_particle = self.generate_object('0:1', '0:30059', \
+        tile_particle = self.generate_object('0:1', '0:30059',
                                              x, y, parent=ninja_type)
 
         self.temp_objects.append(damage_number)
@@ -100,42 +99,42 @@ class ObjectManager():
             if hpbar.owner == ninja_type:
                 return hpbar
 
-    def generate_enemy_object(self, enemyType, x, y):
-        enemy_object = self.generate_object(EnemyObject.ArtIndex.value, EnemyObject.TemplateId.value, \
-                                            x, y, parent=EnemyObject, owner=enemyType)
+    def generate_enemy_object(self, enemy_type, x, y):
+        enemy_object = self.generate_object(EnemyObject.ArtIndex.value, EnemyObject.TemplateId.value,
+                                            x, y, parent=EnemyObject, owner=enemy_type)
 
         self.map[x][y].owner = enemy_object
         self.enemies.append(enemy_object)
 
-    def generate_enemy_hp_object(self, x, y, enemyType=None):
-        enemy_hp_object = self.generate_object(HPObject.ArtIndex.value, HPObject.TemplateId.value, \
-                                               x, y, parent=HPObject, owner=enemyType)
+    def generate_enemy_hp_object(self, x, y, enemy_type=None):
+        enemy_hp_object = self.generate_object(HPObject.ArtIndex.value, HPObject.TemplateId.value,
+                                               x, y, parent=HPObject, owner=enemy_type)
 
         self.enemy_hpbars.append(enemy_hp_object)
 
     def generate_obstacle_object(self, x, y):
-        obstacle_object = self.generate_object(ObstacleObject.ArtIndex.value, ObstacleObject.TemplateId.value, \
+        obstacle_object = self.generate_object(ObstacleObject.ArtIndex.value, ObstacleObject.TemplateId.value,
                                                x, y, parent=ObstacleObject)
 
         self.map[x][y].owner = obstacle_object
         self.obstacles.append(obstacle_object)
 
-    def generate_player_object(self, id, ninja, x, y):
-        player_object = Object(id=id, name=f'Actor{id}', art_index='0:1', template_id='0:1', \
+    def generate_player_object(self, obj_id, ninja, x, y):
+        player_object = Object(id=obj_id, name=f'Actor{obj_id}', art_index='0:1', template_id='0:1',
                                x=x, y=y, parent=PenguinObject, owner=ninja)
 
         self.map[x][y].owner = player_object
         self.players.append(player_object)
 
-    def generate_player_hp_object(self, x, y, ninjaType=None):
-        player_hp_object = self.generate_object(HPObject.ArtIndex.value, HPObject.TemplateId.value, \
-                                                x, y, parent=HPObject, owner=ninjaType)
+    def generate_player_hp_object(self, x, y, ninja_type=None):
+        player_hp_object = self.generate_object(HPObject.ArtIndex.value, HPObject.TemplateId.value,
+                                                x, y, parent=HPObject, owner=ninja_type)
 
         self.player_hpbars.append(player_hp_object)
 
-    def generate_player_ghost(self, ninjaType, x, y):
-        ghost_object = self.generate_object('0:1', '0:30017', \
-                                            x, y, parent=ninjaType)
+    def generate_player_ghost(self, ninja_type, x, y):
+        ghost_object = self.generate_object('0:1', '0:30017',
+                                            x, y, parent=ninja_type)
 
         self.temp_objects.append(ghost_object)
         return ghost_object
@@ -144,7 +143,7 @@ class ObjectManager():
         if name is None:
             name = f'Actor{self.object_id}'
 
-        obj = Object(id=self.object_id, name=name, art_index=art_index, template_id=template_id, \
+        obj = Object(id=self.object_id, name=name, art_index=art_index, template_id=template_id,
                      x=x, y=y, parent=parent, owner=owner)
         self.object_id += 1
 
@@ -180,10 +179,10 @@ class ObjectManager():
             player.snow_ninja.edited_objects = []
 
             potential_tiles = self.get_tiles_from_range(player.snow_ninja.current_object.x,
-                                                        player.snow_ninja.current_object.y, \
+                                                        player.snow_ninja.current_object.y,
                                                         tile_range=player.snow_ninja.ninja.Move.value)
             for tile in potential_tiles:
-                await player.send_tag('O_SPRITE', tile.id, \
+                await player.send_tag('O_SPRITE', tile.id,
                                       '0:100063' if tile.owner is None else '0:100270', '1')
                 player.snow_ninja.edited_objects.append(tile.id)
 
@@ -191,7 +190,7 @@ class ObjectManager():
 
         self.moveset_id = max(edited_sprite_count) + self.object_id
         self.object_id = self.moveset_id + 1
-        await self.room.send_tag('O_HERE', self.moveset_id, '0:100300', 0, 0, 0, 1, 0, 0, 0, \
+        await self.room.send_tag('O_HERE', self.moveset_id, '0:100300', 0, 0, 0, 1, 0, 0, 0,
                                  f'Actor{self.moveset_id}', '0:30038', 0, 0, 0, f=self.is_player_dead())
 
     async def remove_movement_plans(self):
@@ -253,14 +252,14 @@ class ObjectManager():
         adjusted_y = round(ghost_object.y + PenguinObject.YCoordinateOffset.value,
                            PenguinObject.YCoordinateDecimals.value)
 
-        await p.room.send_tag('O_HERE', ghost_object.id, '0:1', adjusted_x, adjusted_y, 0, 1, 0, 0, 0, \
+        await p.room.send_tag('O_HERE', ghost_object.id, '0:1', adjusted_x, adjusted_y, 0, 1, 0, 0, 0,
                               f'Actor{ghost_object.id}', '0:30017', 0, 1, 0)
         await p.room.send_tag('O_SPRITE', ghost_object.id, p.snow_ninja.ninja.SelectedTileAnimation.value, 1, '')
         await p.room.sound_manager.play_sound('0:1840040')
 
         p.snow_ninja.last_object = tile
 
-        ## TODO: show nearby enemy targets
+        # TODO: show nearby enemy targets
         await self.show_targets(p, tile.x, tile.y)
 
     async def show_targets(self, p, x, y):
@@ -275,28 +274,15 @@ class ObjectManager():
         p.snow_ninja.heal_target_objects = []
         potential_tiles = self.get_tiles_from_range(x, y, tile_range=p.snow_ninja.ninja.Range.value)
         for tile in potential_tiles:
-            if p.snow_ninja.ninja == SnowNinja and tile.owner in [FireNinja, WaterNinja]:  # Healing Target
-                target_obj = self.generate_object(PenguinTarget.ArtIndex.value, PenguinTarget.TemplateId.value, \
-                                                  tile.x, tile.y, parent=PenguinTarget)
-
-                adjusted_x = round(tile.x + PenguinTarget.XCoordinateOffset.value,
-                                   PenguinTarget.XCoordinateDecimals.value)
-                adjusted_y = round(tile.y + PenguinTarget.YCoordinateOffset.value,
-                                   PenguinTarget.YCoordinateDecimals.value)
-
-                await p.send_tag('O_HERE', target_obj.id, target_obj.art_index, adjusted_x, adjusted_y, \
-                                 0, 1, 0, 0, 0, target_obj.name, target_obj.template_id, 0, 0, 0)
-                asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
-                await p.room.sound_manager.play_individual_sound(p, target_obj.parent.Sound.value)
-                p.snow_ninja.heal_target_objects.append(target_obj)
+            await self.generate_heal_tiles(p, tile)
             if tile.owner in self.room.enemy_manager.default_enemies:
-                target_obj = self.generate_object(EnemyTarget.ArtIndex.value, EnemyTarget.TemplateId.value, \
+                target_obj = self.generate_object(EnemyTarget.ArtIndex.value, EnemyTarget.TemplateId.value,
                                                   tile.x, tile.y, parent=EnemyTarget)
 
                 adjusted_x = round(tile.x + EnemyTarget.XCoordinateOffset.value, EnemyTarget.XCoordinateDecimals.value)
                 adjusted_y = round(tile.y + EnemyTarget.YCoordinateOffset.value, EnemyTarget.YCoordinateDecimals.value)
 
-                await p.send_tag('O_HERE', target_obj.id, target_obj.art_index, adjusted_x, adjusted_y, \
+                await p.send_tag('O_HERE', target_obj.id, target_obj.art_index, adjusted_x, adjusted_y,
                                  0, 1, 0, 0, 0, target_obj.name, target_obj.template_id, 0, 0, 0)
                 asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
                 await p.room.sound_manager.play_individual_sound(p, target_obj.parent.Sound.value)
@@ -306,19 +292,23 @@ class ObjectManager():
         for tile in reviving_tiles:
             for penguin in self.room.penguins:
                 if tile.owner == penguin.snow_ninja.ninja and not penguin.is_alive:
-                    target_obj = self.generate_object(PenguinTarget.ArtIndex.value, PenguinTarget.TemplateId.value, \
-                                                      tile.x, tile.y, parent=PenguinTarget)
+                    await self.generate_heal_tiles(p, tile)
 
-                    adjusted_x = round(tile.x + PenguinTarget.XCoordinateOffset.value,
-                                       PenguinTarget.XCoordinateDecimals.value)
-                    adjusted_y = round(tile.y + PenguinTarget.YCoordinateOffset.value,
-                                       PenguinTarget.YCoordinateDecimals.value)
+    async def generate_heal_tiles(self, p, tile):
+        if p.snow_ninja.ninja == SnowNinja and tile.owner in [FireNinja, WaterNinja]:  # Healing Target
+            target_obj = self.generate_object(PenguinTarget.ArtIndex.value, PenguinTarget.TemplateId.value,
+                                              tile.x, tile.y, parent=PenguinTarget)
 
-                    await p.send_tag('O_HERE', target_obj.id, target_obj.art_index, adjusted_x, adjusted_y, \
-                                     0, 1, 0, 0, 0, target_obj.name, target_obj.template_id, 0, 0, 0)
-                    asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
-                    await p.room.sound_manager.play_individual_sound(p, target_obj.parent.Sound.value)
-                    p.snow_ninja.heal_target_objects.append(target_obj)
+            adjusted_x = round(tile.x + PenguinTarget.XCoordinateOffset.value,
+                               PenguinTarget.XCoordinateDecimals.value)
+            adjusted_y = round(tile.y + PenguinTarget.YCoordinateOffset.value,
+                               PenguinTarget.YCoordinateDecimals.value)
+
+            await p.send_tag('O_HERE', target_obj.id, target_obj.art_index, adjusted_x, adjusted_y,
+                             0, 1, 0, 0, 0, target_obj.name, target_obj.template_id, 0, 0, 0)
+            asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
+            await p.room.sound_manager.play_individual_sound(p, target_obj.parent.Sound.value)
+            p.snow_ninja.heal_target_objects.append(target_obj)
 
     async def select_enemy(self, p, enemy_id):
         enemy = [e for e in self.enemies if e.id == enemy_id][0]
@@ -333,7 +323,7 @@ class ObjectManager():
 
     async def heal_penguin(self, p, tile_id):
         tile = self.get_tile_by_id(tile_id)
-        
+
         if tile.owner in [FireNinja, WaterNinja]:  # Healing Target
             penguin = self.get_penguin_by_ninja_type(tile.owner)
             p.snow_ninja.heal_target = penguin
@@ -345,13 +335,13 @@ class ObjectManager():
                     target_obj.parent = PenguinTarget
                     asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
 
-    async def player_move(self, penguin): 
-        await self.room.animation_manager.play_animation(penguin.snow_ninja.current_object, \
+    async def player_move(self, penguin):
+        await self.room.animation_manager.play_animation(penguin.snow_ninja.current_object,
                                                          penguin.snow_ninja.ninja.MoveAnimation.value,
-                                                         'play_once', \
+                                                         'play_once',
                                                          penguin.snow_ninja.ninja.MoveAnimationDuration.value)
-        await self.room.animation_manager.play_animation(penguin.snow_ninja.current_object, \
-                                                         penguin.snow_ninja.ninja.IdleAnimation.value, 'loop', \
+        await self.room.animation_manager.play_animation(penguin.snow_ninja.current_object,
+                                                         penguin.snow_ninja.ninja.IdleAnimation.value, 'loop',
                                                          penguin.snow_ninja.ninja.IdleAnimationDuration.value)
 
         self.map[penguin.snow_ninja.current_object.x][penguin.snow_ninja.current_object.y].owner = None
@@ -362,9 +352,9 @@ class ObjectManager():
         penguin.snow_ninja.current_object.x = new_tile.x
         penguin.snow_ninja.current_object.y = new_tile.y
         # penguin.snow_ninja.current_object.id = new_tile.id
-        
+
         healthbar = self.get_healthbar(penguin.snow_ninja.ninja)
-        
+
         healthbar.x = new_tile.x
         healthbar.y = new_tile.y
 
@@ -373,7 +363,7 @@ class ObjectManager():
         adjusted_y = round(new_tile.y + PenguinObject.YCoordinateOffset.value,
                            PenguinObject.YCoordinateDecimals.value)
 
-        await self.room.send_tag('O_SLIDE', penguin.snow_ninja.current_object.id, adjusted_x, adjusted_y, \
+        await self.room.send_tag('O_SLIDE', penguin.snow_ninja.current_object.id, adjusted_x, adjusted_y,
                                  128, penguin.snow_ninja.ninja.MoveAnimationDuration.value)
 
         await self.room.sound_manager.play_sound(penguin.snow_ninja.ninja.MoveAnimationSound.value)
@@ -383,20 +373,20 @@ class ObjectManager():
         adjusted_y = round(healthbar.y + HPObject.YCoordinateOffset.value,
                            HPObject.YCoordinateDecimals.value)
 
-        await self.room.send_tag('O_SLIDE', healthbar.id, adjusted_x, adjusted_y, \
+        await self.room.send_tag('O_SLIDE', healthbar.id, adjusted_x, adjusted_y,
                                  128, penguin.snow_ninja.ninja.MoveAnimationDuration.value)
 
         penguin.snow_ninja.last_object = None
         await asyncio.sleep(penguin.snow_ninja.ninja.MoveAnimationDuration.value * 0.001)
         penguin.logger.error(penguin.snow_ninja.current_target)
 
-
     async def do_move_action(self):
         for penguin in self.get_alive_ninjas():
             if penguin.snow_ninja.last_object is not None:
                 await self.player_move(penguin)
             if penguin.snow_ninja.current_target is not None:
-                await self.room.player_manager.player_damage(penguin, penguin.snow_ninja.current_target, penguin.snow_ninja.ninja.Attack.value)
+                await self.room.player_manager.player_damage(penguin, penguin.snow_ninja.current_target,
+                                                             penguin.snow_ninja.ninja.Attack.value)
                 penguin.snow_ninja.current_target = None
 
     def find_open_coordinate(self, x_min, x_max, y_min, y_max):
@@ -413,9 +403,7 @@ class ObjectManager():
         while self.map[x][y].owner is not None:
             x, y = random.randint(x_min, x_max), random.randint(y_min, y_max)
 
-
         return x, y
-
 
     def get_enemy_by_id(self, enemy_id):
         for enemy in self.enemies:
@@ -427,7 +415,7 @@ class ObjectManager():
     def get_penguin_by_id(self, ninja_id):
         for penguin in self.room.penguins:
             if penguin.snow_ninja.current_object.id == ninja_id:
-                return ninja
+                return penguin
 
         return None
 
@@ -441,24 +429,23 @@ class ObjectManager():
             if hpbar.owner == ninja_type:
                 return hpbar
 
-    def get_heal_target_by_id(self, tile_id):
+    def get_heal_target_by_id(self, player, tile_id):
         for tile in player.snow_ninja.heal_target_objects:
             if tile.owner in [FireNinja, WaterNinja]:
                 return True
-                
+
     def get_direction(self, x, xcompare):
-        if x >= xcompare:    
+        if x >= xcompare:
             return 'left'
         elif x <= xcompare:
             return 'right'
-        
 
     def get_tile_by_id(self, tile_id):
         adjusted_object_id = tile_id - 14
         x, y = adjusted_object_id // MapConstants.BoardHeight.value, adjusted_object_id % MapConstants.BoardHeight.value
         try:
             return self.map[x][y]
-        except :
+        except KeyError:
             return None
 
     def is_player_dead(self):
@@ -467,21 +454,20 @@ class ObjectManager():
 
         return f
 
-
     async def send_map(self, p):
         for column in self.map:
             for tile in column:
                 adjusted_x = round(tile.x + tile.parent.XCoordinateOffset.value, tile.parent.XCoordinateDecimals.value)
                 adjusted_y = round(tile.y + tile.parent.YCoordinateOffset.value, tile.parent.YCoordinateDecimals.value)
 
-                await p.send_tag('O_HERE', tile.id, tile.art_index, adjusted_x, adjusted_y, 0, 1, 0, 0, 0, \
+                await p.send_tag('O_HERE', tile.id, tile.art_index, adjusted_x, adjusted_y, 0, 1, 0, 0, 0,
                                  tile.name, tile.template_id, 0, 1, 0)
 
         for obj in self.obstacles:
             adjusted_x = round(obj.x + obj.parent.XCoordinateOffset.value, obj.parent.XCoordinateDecimals.value)
             adjusted_y = round(obj.y + obj.parent.YCoordinateOffset.value, obj.parent.YCoordinateDecimals.value)
 
-            await p.send_tag('O_HERE', obj.id, obj.art_index, adjusted_x, adjusted_y, 0, 1, 0, 0, 0, \
+            await p.send_tag('O_HERE', obj.id, obj.art_index, adjusted_x, adjusted_y, 0, 1, 0, 0, 0,
                              obj.name, obj.template_id, 0, 1, 0)
             await p.send_tag('O_SPRITE', obj.id, obj.art_index, 0, '')
 
@@ -496,18 +482,19 @@ class ObjectManager():
 
             await p.send_tag('O_MOVE', player_obj.id, adjusted_x, adjusted_y, 128)
             await p.send_tag('P_TILECHANGE', player_obj.x, player_obj.y, OccupiedPenguinSpawnTile.TileUrl.value)
-            await p.send_tag('O_ANIM', player_obj.id, player_obj.owner.IdleAnimation.value, 'loop', \
+            await p.send_tag('O_ANIM', player_obj.id, player_obj.owner.IdleAnimation.value, 'loop',
                              player_obj.owner.IdleAnimationDuration.value, 1, 0, player_obj.id, i + 1, 0, 0)
 
-            adjusted_x = round(player_hp_obj.x + player_hp_obj.parent.XCoordinateOffset.value, \
+            adjusted_x = round(player_hp_obj.x + player_hp_obj.parent.XCoordinateOffset.value,
                                player_hp_obj.parent.XCoordinateDecimals.value)
-            adjusted_y = round(player_hp_obj.y + player_hp_obj.parent.YCoordinateOffset.value, \
+            adjusted_y = round(player_hp_obj.y + player_hp_obj.parent.YCoordinateOffset.value,
                                player_hp_obj.parent.YCoordinateDecimals.value)
 
-            await p.send_tag('O_HERE', player_hp_obj.id, player_hp_obj.art_index, adjusted_x, adjusted_y, \
+            await p.send_tag('O_HERE', player_hp_obj.id, player_hp_obj.art_index, adjusted_x, adjusted_y,
                              0, 1, 0, 0, 0, player_hp_obj.name, player_hp_obj.template_id, 0, 1, 0)
             await p.send_tag('O_SPRITEANIM', player_hp_obj.id, 1, 1, 0, 'play_once', 0)
             await p.send_tag('O_SPRITE', player_hp_obj.id, '0:100395', 1, '')
+
 
 @dataclass
 class Object():
