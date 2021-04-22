@@ -166,6 +166,6 @@ async def handle_quit(p, **data):
                       windowUrl=p.media_url + URLConstants.ExternalInterface.value, \
                       xPercent=0, yPercent=0)
     if p.server.snow_world:
-        p.snow_ninja.damage = p.snow_ninja.ninja.HealthPoints
+        p.snow_ninja.damage = p.snow_ninja.ninja.HealthPoints.value
         await p.room.player_manager.player_death(p)
 
