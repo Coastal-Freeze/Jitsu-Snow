@@ -37,7 +37,7 @@ class EnemyManager:
                 distances = [np.linalg.norm(
                     np.array([player.snow_ninja.current_object.x, player.snow_ninja.current_object.y])
                     - np.array([enemy.current_object.x, enemy.current_object.y])) for player in self.room.penguins if
-                    player.snow_ninja.damage <= player.snow_ninja.ninja.HealthPoints.value]
+                    player.is_alive]
                 player = self.room.penguins[distances.index(min(distances))]  # Determine which player to follow
                 nonoverlap_coordinate = self.object_manager.find_open_coordinate(
                     player.snow_ninja.current_object.x,
