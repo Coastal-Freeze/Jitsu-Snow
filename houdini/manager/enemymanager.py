@@ -28,22 +28,22 @@ class EnemyManager:
         self.object_manager.generate_enemies()
 
         for enemy in self.object_manager.enemies:
-            self.current_enemies.append(Enemy(id=enemy.id, current_object=enemy, parent=enemy.owner))
+            self.current_enemies.append(Enemy(id=enemy.id, tile=enemy, parent=enemy.owner))
 
     async def do_enemy_turn(self):
         for enemy in self.current_enemies:
-            players = self.get_nearby_players(enemy.current_object.x, enemy.current_object.y)
+            players = self.get_nearby_players(enemy.tile.x, enemy.tile.y)
             if len(players) == 0:  # No surrounding users, let's move
                 distances = [np.linalg.norm(
-                    np.array([player.snow_ninja.current_object.x, player.snow_ninja.current_object.y])
-                    - np.array([enemy.current_object.x, enemy.current_object.y])) for player in self.room.penguins if
+                    np.array([player.snow_ninja.tile.x, player.snow_ninja.tile.y])
+                    - np.array([enemy.tile.x, enemy.tile.y])) for player in self.room.penguins if
                     player.is_alive]
                 player = self.room.penguins[distances.index(min(distances))]  # Determine which player to follow
                 nonoverlap_coordinate = self.object_manager.find_open_coordinate(
-                    player.snow_ninja.current_object.x,
-                    player.snow_ninja.current_object.x + 1, player.snow_ninja.current_object.y,
-                    player.snow_ninja.current_object.y + 1)
-                new_x, new_y = self.do_astar_algorithm((enemy.current_object.x, enemy.current_object.y),
+                    player.snow_ninja.tile.x,
+                    player.snow_ninja.tile.x + 1, player.snow_ninja.tile.y,
+                    player.snow_ninja.tile.y + 1)
+                new_x, new_y = self.do_astar_algorithm((enemy.tile.x, enemy.tile.y),
                                                        (nonoverlap_coordinate[0], nonoverlap_coordinate[1]),
                                                        tile_range=enemy.parent.Range.value)[1]
 
@@ -61,16 +61,16 @@ class EnemyManager:
 
     async def enemy_damage(self, p, enemy):
         damage = enemy.parent.Attack.value
-        await self.room.animation_manager.play_animation(enemy.current_object,
+        await self.room.animation_manager.play_animation(enemy.tile,
                                                          enemy.parent.AttackAnimation.value, 'play_once',
                                                          enemy.parent.AttackAnimationDuration.value)
-        await self.room.animation_manager.play_animation(enemy.current_object,
+        await self.room.animation_manager.play_animation(enemy.tile,
                                                          enemy.parent.IdleAnimation.value, 'loop',
                                                          enemy.parent.IdleAnimationDuration.value)
         await self.room.sound_manager.play_sound(enemy.parent.AttackAnimationSound.value)
         damage_number, tile_particle = self.object_manager.generate_damage_particle(p.snow_ninja.ninja,
-                                                                                    p.snow_ninja.current_object.x,
-                                                                                    p.snow_ninja.current_object.y)
+                                                                                    p.snow_ninja.tile.x,
+                                                                                    p.snow_ninja.tile.y)
 
         adjusted_x = round(tile_particle.x + PenguinObject.XCoordinateOffset.value,
                            PenguinObject.XCoordinateDecimals.value)
@@ -91,10 +91,10 @@ class EnemyManager:
         await self.room.send_tag('O_SPRITE', damage_number.id, '0:100067', damage)
         await self.room.send_tag('O_SPRITEANIM', damage_number.id, damage, damage + 4, 0, 'play_once', 800)
 
-        await self.room.animation_manager.play_animation(p.snow_ninja.current_object,
+        await self.room.animation_manager.play_animation(p.snow_ninja.tile,
                                                          p.snow_ninja.ninja.HitAnimation.value, 'play_once',
                                                          p.snow_ninja.ninja.HitAnimationDuration.value)
-        await self.room.animation_manager.play_animation(p.snow_ninja.current_object,
+        await self.room.animation_manager.play_animation(p.snow_ninja.tile,
                                                          p.snow_ninja.ninja.IdleAnimation.value, 'loop',
                                                          p.snow_ninja.ninja.IdleAnimationDuration.value)
 
@@ -102,7 +102,7 @@ class EnemyManager:
 
         p.snow_ninja.damage = max(0, min(p.snow_ninja.damage + damage, p.snow_ninja.ninja.HealthPoints.value))
         hpbar = self.object_manager.player_hpbars[
-            self.object_manager.players.index(p.snow_ninja.current_object)]
+            self.object_manager.players.index(p.snow_ninja.tile)]
 
         hp_percentage = round((p.snow_ninja.damage * 100) / p.snow_ninja.ninja.HealthPoints.value)
         healthbar = round((hp_percentage * 59) / 100)
@@ -114,11 +114,11 @@ class EnemyManager:
 
     async def move_enemy(self, enemy, x, y):
         enemy_hp_bar = self.object_manager.enemy_hpbars[
-            self.object_manager.enemies.index(enemy.current_object)]
+            self.object_manager.enemies.index(enemy.tile)]
 
-        old_x, old_y = enemy.current_object.x, enemy.current_object.y
-        enemy.current_object.x = x
-        enemy.current_object.y = y
+        old_x, old_y = enemy.tile.x, enemy.tile.y
+        enemy.tile.x = x
+        enemy.tile.y = y
 
         enemy_hp_bar.x = x
         enemy_hp_bar.y = y
@@ -126,13 +126,13 @@ class EnemyManager:
         adjusted_x = round(x + EnemyObject.XCoordinateOffset.value, EnemyObject.XCoordinateDecimals.value)
         adjusted_y = round(y + EnemyObject.YCoordinateOffset.value, EnemyObject.YCoordinateDecimals.value)
 
-        await self.room.send_tag('O_SLIDE', enemy.current_object.id, adjusted_x, adjusted_y,
+        await self.room.send_tag('O_SLIDE', enemy.tile.id, adjusted_x, adjusted_y,
                                  128, enemy.parent.MoveAnimationDuration.value)
 
-        await self.room.animation_manager.play_animation(enemy.current_object,
+        await self.room.animation_manager.play_animation(enemy.tile,
                                                          enemy.parent.MoveAnimation.value, 'play_once',
                                                          enemy.parent.MoveAnimationDuration.value)
-        await self.room.animation_manager.play_animation(enemy.current_object,
+        await self.room.animation_manager.play_animation(enemy.tile,
                                                          enemy.parent.IdleAnimation.value, 'loop',
                                                          enemy.parent.IdleAnimationDuration.value)
 
@@ -261,7 +261,7 @@ class EnemyManager:
 class Enemy:
     id: int
 
-    current_object: 'typing.Any'
+    tile: 'typing.Any'
     parent: 'typing.Any'
 
 

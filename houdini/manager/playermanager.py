@@ -15,15 +15,15 @@ class PlayerManager:
 
     async def player_death(self, p):
         n_obj = p.snow_ninja
-        await self.animation_manager.play_animation(n_obj.current_object,
+        await self.animation_manager.play_animation(n_obj.tile,
                                                     n_obj.ninja.KnockoutAnimation.value, 'play_once',
                                                     2500)
         await asyncio.sleep(2.5)
-        await self.animation_manager.play_animation(n_obj.current_object,
+        await self.animation_manager.play_animation(n_obj.tile,
                                                     n_obj.ninja.KnockoutAnimationLoop.value, 'loop',
                                                     800)
         n_obj.damage = n_obj.ninja.HealthPoints.value
-        hpbar = self.object_manager.player_hpbars[self.object_manager.players.index(n_obj.current_object)]
+        hpbar = self.object_manager.player_hpbars[self.object_manager.players.index(n_obj.tile)]
         await self.room.send_tag('O_SPRITEANIM', hpbar.id, 60, 60, 0, 'play_once', 500)
 
         await self.sound_manager.play_sound('0:1840007')
@@ -35,24 +35,24 @@ class PlayerManager:
         if not penguin.is_alive:
             return await self.player_revive(penguin, target)
 
-        await self.animation_manager.play_animation(penguin.snow_ninja.current_object,
+        await self.animation_manager.play_animation(penguin.snow_ninja.tile,
                                                     penguin.snow_ninja.ninja.HealAnimation.value, 'play_once',
                                                     penguin.snow_ninja.ninja.HealAnimationDuration.value)
 
         await asyncio.sleep(penguin.snow_ninja.HealAnimationDuration.value * 0.001)
 
-        await self.animation_manager.play_animation(penguin.snow_ninja.current_object,
+        await self.animation_manager.play_animation(penguin.snow_ninja.tile,
                                                     penguin.snow_ninja.ninja.IdleAnimation.value, 'loop',
                                                     penguin.snow_ninja.ninja.IdleAnimationDuration.value)
 
         await self.player_healing(penguin, target)
 
     async def player_revive(self, penguin, target):
-        await self.animation_manager.play_animation(penguin.snow_ninja.current_object,
+        await self.animation_manager.play_animation(penguin.snow_ninja.tile,
                                                     penguin.snow_ninja.ninja.HealAnimation.value, 'play_once',
                                                     penguin.snow_ninja.ninja.HealAnimationDuration.value)
         await asyncio.sleep(penguin.snow_ninja.HealAnimationDuration.value * 0.001)
-        await self.animation_manager.play_animation(penguin.snow_ninja.current_object,
+        await self.animation_manager.play_animation(penguin.snow_ninja.tile,
                                                     penguin.snow_ninja.ninja.IdleAnimation.value, 'loop',
                                                     penguin.snow_ninja.ninja.IdleAnimationDuration.value)
 
@@ -74,11 +74,11 @@ class PlayerManager:
         player = p.snow_ninja
         ninja = player.ninja
 
-        await self.animation_manager.play_animation(player.current_object,
+        await self.animation_manager.play_animation(player.tile,
                                                     ninja.AttackAnimation.value, 'play_once',
                                                     ninja.AttackAnimationDuration.value)
         await asyncio.sleep(ninja.AttackAnimationDuration.value * 0.001)
-        await self.animation_manager.play_animation(player.current_object,
+        await self.animation_manager.play_animation(player.tile,
                                                     ninja.IdleAnimation.value, 'loop',
                                                     ninja.IdleAnimationDuration.value)
         await p.room.sound_manager.play_sound(ninja.AttackAnimationSound.value)

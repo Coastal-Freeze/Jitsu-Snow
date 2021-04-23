@@ -124,10 +124,10 @@ class SnowMatchMaking:
                                         triggerName='matchFound', type='immediateAction')
 
     def add_penguin(self, p):
-        self._penguins[p.snow_ninja.current_object.Element.value].append(p)
+        self._penguins[p.snow_ninja.tile.Element.value].append(p)
 
     def remove_penguin(self, p):
-        self._penguins[p.snow_ninja.current_object.Element.value].remove(p)
+        self._penguins[p.snow_ninja.tile.Element.value].remove(p)
 
 
 @handlers.boot

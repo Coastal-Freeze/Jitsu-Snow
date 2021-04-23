@@ -174,12 +174,12 @@ class ObjectManager:
         edited_sprite_count = []
 
         for player in self.get_alive_ninjas():
-            await self.show_targets(player, player.snow_ninja.current_object.x, player.snow_ninja.current_object.y)
+            await self.show_targets(player, player.snow_ninja.tile.x, player.snow_ninja.tile.y)
 
             player.snow_ninja.edited_objects = []
 
-            potential_tiles = self.get_tiles_from_range(player.snow_ninja.current_object.x,
-                                                        player.snow_ninja.current_object.y,
+            potential_tiles = self.get_tiles_from_range(player.snow_ninja.tile.x,
+                                                        player.snow_ninja.tile.y,
                                                         tile_range=player.snow_ninja.ninja.Move.value)
             for tile in potential_tiles:
                 await player.send_tag('O_SPRITE', tile.id,
@@ -221,10 +221,10 @@ class ObjectManager:
     def update_player_coordinates(self, player):
         for player_object in self.players:
             if player_object.owner == player.snow_ninja.ninja:
-                player.snow_ninja.current_object = player_object
+                player.snow_ninja.tile = player_object
 
     async def check_mark(self, p):
-        x, y = p.snow_ninja.current_object.x, p.snow_ninja.current_object.y
+        x, y = p.snow_ninja.tile.x, p.snow_ninja.tile.y
         check_object = self.generate_check_mark(p.snow_ninja.ninja, x, y)
         adjusted_x = round(check_object.x + PenguinObject.XCoordinateOffset.value,
                            PenguinObject.XCoordinateDecimals.value)
@@ -328,7 +328,7 @@ class ObjectManager:
             penguin = self.get_penguin_by_ninja_type(tile.owner)
             p.snow_ninja.heal_target = penguin
             for target_obj in p.snow_ninja.heal_target_objects:
-                if target_obj.x == penguin.current_object.x and target_obj.y == penguin.current_object.y:
+                if target_obj.x == penguin.tile.x and target_obj.y == penguin.tile.y:
                     target_obj.parent = SelectedPenguinTarget
                     asyncio.create_task(self.room.animation_manager.green_target(p, target_obj))
                 else:
@@ -336,22 +336,22 @@ class ObjectManager:
                     asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
 
     async def player_move(self, penguin):
-        await self.room.animation_manager.play_animation(penguin.snow_ninja.current_object,
+        await self.room.animation_manager.play_animation(penguin.snow_ninja.tile,
                                                          penguin.snow_ninja.ninja.MoveAnimation.value,
                                                          'play_once',
                                                          penguin.snow_ninja.ninja.MoveAnimationDuration.value)
-        await self.room.animation_manager.play_animation(penguin.snow_ninja.current_object,
+        await self.room.animation_manager.play_animation(penguin.snow_ninja.tile,
                                                          penguin.snow_ninja.ninja.IdleAnimation.value, 'loop',
                                                          penguin.snow_ninja.ninja.IdleAnimationDuration.value)
 
-        self.map[penguin.snow_ninja.current_object.x][penguin.snow_ninja.current_object.y].owner = None
+        self.map[penguin.snow_ninja.tile.x][penguin.snow_ninja.tile.y].owner = None
         new_tile = penguin.snow_ninja.last_object
         new_tile.owner = penguin.snow_ninja.ninja
-        # penguin.snow_ninja.current_object = new_tile
+        # penguin.snow_ninja.tile = new_tile
 
-        penguin.snow_ninja.current_object.x = new_tile.x
-        penguin.snow_ninja.current_object.y = new_tile.y
-        # penguin.snow_ninja.current_object.id = new_tile.id
+        penguin.snow_ninja.tile.x = new_tile.x
+        penguin.snow_ninja.tile.y = new_tile.y
+        # penguin.snow_ninja.tile.id = new_tile.id
 
         healthbar = self.get_healthbar(penguin.snow_ninja.ninja)
 
@@ -363,7 +363,7 @@ class ObjectManager:
         adjusted_y = round(new_tile.y + PenguinObject.YCoordinateOffset.value,
                            PenguinObject.YCoordinateDecimals.value)
 
-        await self.room.send_tag('O_SLIDE', penguin.snow_ninja.current_object.id, adjusted_x, adjusted_y,
+        await self.room.send_tag('O_SLIDE', penguin.snow_ninja.tile.id, adjusted_x, adjusted_y,
                                  128, penguin.snow_ninja.ninja.MoveAnimationDuration.value)
 
         await self.room.sound_manager.play_sound(penguin.snow_ninja.ninja.MoveAnimationSound.value)
@@ -414,7 +414,7 @@ class ObjectManager:
 
     def get_penguin_by_id(self, ninja_id):
         for penguin in self.room.penguins:
-            if penguin.snow_ninja.current_object.id == ninja_id:
+            if penguin.snow_ninja.tile.id == ninja_id:
                 return penguin
 
         return None
@@ -435,11 +435,17 @@ class ObjectManager:
                 return True
         return False
 
-    def get_direction(self, x, xcompare):
-        if x >= xcompare:
-            return 'left'
-        elif x <= xcompare:
-            return 'right'
+    def get_y_direction(self, y, ycompare):
+        if y >= ycompare:
+            return 'north'
+        else:
+            return ''
+
+    def get_direction(self, x, compare_x):
+        if x <= compare_x:
+            return 'east'
+        else:
+            return ''
 
     def get_tile_by_id(self, tile_id):
         adjusted_object_id = tile_id - 14

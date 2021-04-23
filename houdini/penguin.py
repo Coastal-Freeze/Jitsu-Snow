@@ -1,14 +1,14 @@
+import random
 import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Union, Any
+from typing import List, Any
 
+from houdini.constants import URLConstants
 from houdini.data import penguin
-from houdini.data.ninja import Card
 from houdini.data.mail import PenguinPostcard
+from houdini.data.ninja import Card
 from houdini.handlers.play.pet import get_my_player_walking_puffle
 from houdini.spheniscidae import Spheniscidae
-from houdini.constants import URLConstants
-import random
 
 
 class Penguin(Spheniscidae, penguin.Penguin):
@@ -87,7 +87,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
     @property
     def safe_name(self):
         return self.safe_nickname(self.server.config.lang)
-        
+
     @property
     def is_alive(self):
         return int(self.snow_ninja.damage <= self.snow_ninja.ninja.HealthPoints.value)
@@ -395,7 +395,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
 
     async def add_stamina(self, stamina):
         self.snow_ninja.stamina += stamina
-        payload={'cycle': False, 'stamina': self.snow_ninja.stamina}
+        payload = {'cycle': False, 'stamina': self.snow_ninja.stamina}
         if self.snow_ninja.stamina == 10:
             self.snow_ninja.stamina = 0
             card = self.add_powercard()
@@ -410,8 +410,8 @@ class Penguin(Spheniscidae, penguin.Penguin):
         card = random.choice(self.snow_ninja.cards)
         self.snow_ninja.cards.remove(card)
         self.snow_ninja.deck.append(card)
-        card_data = dict(asset='', card_id=card.id, color=card.color, description=card.description, 
-                         element=card.element, is_active=self.is_alive, label=card.name, name=card.name, 
+        card_data = dict(asset='', card_id=card.id, color=card.color, description=card.description,
+                         element=card.element, is_active=self.is_alive, label=card.name, name=card.name,
                          power_id=card.power_id, prompt=card.name, set_id=card.set_id, value=card.value)
         return card_data
 
@@ -433,7 +433,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
 
     async def show_timer_confirm(self):
         await self.room.send_json(action='jsonPayload', jsonPayload={'isEnabled': self.is_alive},
-                                  targetWindow=self.media_url + URLConstants.SnowTimer.value, \
+                                  targetWindow=self.media_url + URLConstants.SnowTimer.value,
                                   triggerName='enableConfirm', type='immediateAction')
 
     async def show_round_notice(self, round, bonus_criteria, remaining_time=0):
@@ -467,7 +467,7 @@ class SnowNinja:
     wait: int = 0
     damage: int = 0
     stamina: int = 0
-    current_object: Any = None
+    tile: Any = None
     ninja: Any = None
     current_target: Any = None
     heal_target: Any = None
