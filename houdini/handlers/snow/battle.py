@@ -32,13 +32,12 @@ class SnowBattle:
         self.map = []
         self.penguins = []
         self.object_manager = ObjectManager(self)
-        
+
         self.round_manager = RoundManager(self)
         self.sound_manager = SoundManager(self)
         self.animation_manager = AnimationManager(self)
         self.enemy_manager = EnemyManager(self)
         self.player_manager = PlayerManager(self)
-        
 
     def is_ready(self, ready_type='ready'):
         ready = all(map(lambda ninja: ninja.snow_ninja.ready_object[ready_type], self.penguins))
@@ -76,8 +75,7 @@ class SnowBattle:
 
 @handlers.handler(TagPacket('use'))
 async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: float):
-
-    #p.logger.error('heal target: ' + p.room.object_manager.get_heal_target_by_id(p, tile_id))
+    # p.logger.error('heal target: ' + p.room.object_manager.get_heal_target_by_id(p, tile_id))
     if tile_id <= p.room.object_manager.map[-1][-1].id:  # Is it a tile?
         tile = p.room.object_manager.get_tile_by_id(tile_id)
 

@@ -91,26 +91,26 @@ class SnowMatchMaking:
             await self.match_queue()
             await asyncio.sleep(1)  # blocks whole thing allow other corutines to finish
 
-
     async def match_queue(self):
         while all([len(players) > 0 for players in self._penguins.values()]):
-            match_players = []
-            match_players.append(self._penguins['fire'].pop(0))
-            match_players.append(self._penguins['water'].pop(0))
-            match_players.append(self._penguins['snow'].pop(0))
+            match_players = [self._penguins['fire'].pop(0), self._penguins['water'].pop(0),
+                             self._penguins['snow'].pop(0)]
+            match_session = match_players[0].login_key
             room_name = match_players[0].id
             tr = self.server.redis.multi_exec()
-            tr.set(f'cjsnow.{match_players[0].id}', room_name)
-            tr.set(f'cjsnow.{match_players[1].id}', room_name)
-            tr.set(f'cjsnow.{match_players[2].id}', room_name)
+            element_ids = [1, 2, 4]
+            for player in match_players:
+                tr.set(f'{match_session}.{player.id}', room_name)
+                tr.set(f'{match_session}.{player.id}.element', element_ids[match_players.index(player)])
+            await tr.execute()
 
-            tr.set(f'cjsnow.{match_players[0].id}.element', 1)
-            tr.set(f'cjsnow.{match_players[1].id}.element', 2)
-            tr.set(f'cjsnow.{match_players[2].id}.element', 4)
-            await tr.execute()    
-            
             for penguin in match_players:
-                await penguin.send_json(action='jsonPayload', jsonPayload={'1': match_players[0].safe_name, '2':match_players[1].safe_name, '4':match_players[2].safe_name}, targetWindow=f'{match_players[0].media_url}minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowplayerselect.swf', triggerName='matchFound', type='immediateAction')
+                await penguin.send_json(action='jsonPayload',
+                                        jsonPayload={'1': match_players[0].safe_name, '2': match_players[1].safe_name,
+                                                     '4': match_players[2].safe_name},
+                                        targetWindow=f'{match_players[0].media_url}minigames/cjsnow/en_US/deploy/swf'
+                                                     f'/ui/windows/cardjitsu_snowplayerselect.swf',
+                                        triggerName='matchFound', type='immediateAction')
 
     def add_penguin(self, p):
         self._penguins[p.snow_ninja.current_object.Element.value].append(p)

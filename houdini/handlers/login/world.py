@@ -17,6 +17,7 @@ handle_random_key = login.handle_random_key
 handle_snow_version_check = login.handle_snow_version_check
 handle_server_context = login.handle_server_context
 
+
 async def world_login(p, data):
     if len(p.server.penguins_by_id) >= p.server.config.capacity:
         return await p.send_error_and_disconnect(103)
@@ -99,31 +100,31 @@ async def handle_legacy_login(p, credentials: Credentials):
 @handlers.allow_once
 @handlers.depends_on_packet(TagPacket('/version'), TagPacket('/place_context'))
 async def snow_login(p, environment, p_id: int, token: str):
-    
     token = token.strip()
     server_token = json.loads((await p.server.redis.get(token)))
     p.logger.info(server_token)
-    
-    
+
     peng_id = int(server_token['player_id'])
-    
+
     if server_token is None or peng_id != p_id:
         p.logger.info(f'{p_id} failed to login L')
         return await p.send_tag('S_LOGINDEBUG', 'user code 1000')
     if p.server.snow_world:
         await p.server.redis.delete(token)
-        
-        
+
+    p.login_key = token
+
     data = await Penguin.query.where(Penguin.id == p_id).gino.first()
     if data is not None:
-        
         p.logger.info(f'{data.username} Is Logging IN!')
         p.update(**data.to_dict())
-        
+
         p.snow_ninja.muted = server_token['is_muted']
-        
+
         p.is_member = True
-        
+
+
+
         p.cards = await PenguinCardCollection.get_collection(p.id)
         await p.send_tag('S_LOGINDEBUG', 'Finalizing login')
         await p.send_tag('S_LOGIN', p_id, '')
@@ -132,4 +133,3 @@ async def snow_login(p, environment, p_id: int, token: str):
         await p.send_tag('W_DISPLAYSTATE')
         await p.send_tag('W_ASSETSCOMPLETE', p_id, '')
         p.joined_world = True
-
