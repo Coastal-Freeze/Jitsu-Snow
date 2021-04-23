@@ -5,6 +5,7 @@ from houdini.constants import ClientType
 from houdini.converters import VersionChkConverter
 from houdini.data.buddy import BuddyList
 from houdini.handlers import XMLPacket, TagPacket
+from houdini.crypto import Crypto
 
 
 @handlers.handler(XMLPacket('verChk'))
@@ -27,15 +28,16 @@ async def handle_version_check(p, version: VersionChkConverter):
 
 @handlers.handler(TagPacket('/place_context'), pre_login=True)
 async def handle_server_context(p, world, parameters):
+    p.world_name = world
     parameters_parsed = parameters.split('&')
     for parameter in parameters_parsed:
         curr_param = parameter.split('=')
         if curr_param[0] == 'tipMode':
-            p.tip_mode = curr_param[1].lower() == 'true'
+            p.tip_mode = bool(curr_param[1])
         elif curr_param[0] == 'muted':
-            p.muted = curr_param[1].lower() == 'true'
+            p.muted = (curr_param[1])
         else:
-            p.media_url = curr_param[1].rstrip()
+            p.media_url = (curr_param[1])
 
 
 @handlers.handler(TagPacket('/version'), pre_login=True)
@@ -96,12 +98,24 @@ class SnowMatchMaking:
             room_name = match_players[0].id
             tr = self.server.redis.multi_exec()
             element_ids = [1, 2, 4]
+            match_session_id = Crypto.generate_random_key()
             for player in match_players:
-                tr.set(f'cjsnow.{player.id}', room_name)
-                tr.set(f'cjsnow.{player.id}.element', element_ids[match_players.index(player)])
+                tr.set(f'{match_session_id}.{player.id}', room_name)
+                tr.set(f'{match_session_id}.{player.id}.element', element_ids[match_players.index(player)])
             await tr.execute()
 
             for penguin in match_players:
+                await penguin.send_tag('W_PLACELIST',
+                                       '0:10001',
+                                       match_session_id,
+                                       '3 PvP Battle Arena',
+                                       1,
+                                       9,
+                                       5,
+                                       0,
+                                       8,
+                                       1,
+                                       0)
                 await penguin.send_json(action='jsonPayload',
                                         jsonPayload={'1': match_players[0].safe_name, '2': match_players[1].safe_name,
                                                      '4': match_players[2].safe_name},
@@ -122,6 +136,5 @@ async def match_load(server):
         return
 
     server.snow_match_making = SnowMatchMaking(server)
-    print(server.snow_match_making)
 
     asyncio.create_task(server.snow_match_making.start())

@@ -1,16 +1,14 @@
+import json
 from datetime import datetime
 
 from houdini import handlers
-from houdini.constants import ClientType, URLConstants, WaterNinja, SnowNinja, FireNinja
+from houdini.constants import ClientType
 from houdini.converters import Credentials, WorldCredentials
 from houdini.crypto import Crypto
 from houdini.data.moderator import Ban
 from houdini.data.ninja import PenguinCardCollection
 from houdini.data.penguin import Penguin
-from houdini.handlers import XMLPacket, login, FrameworkPacket, TagPacket
-from houdini.handlers.snow.windowManager import join_battle
-import asyncio
-import json
+from houdini.handlers import XMLPacket, login, TagPacket
 
 handle_version_check = login.handle_version_check
 handle_random_key = login.handle_random_key
@@ -109,7 +107,7 @@ async def snow_login(p, environment, p_id: int, token: str):
     if server_token is None or peng_id != p_id:
         p.logger.info(f'{p_id} failed to login L')
         return await p.send_tag('S_LOGINDEBUG', 'user code 1000')
-    if p.server.snow_world:
+    if p.snow_world:
         await p.server.redis.delete(token)
 
     p.login_key = token
@@ -122,8 +120,6 @@ async def snow_login(p, environment, p_id: int, token: str):
         p.snow_ninja.muted = server_token['is_muted']
 
         p.is_member = True
-
-
 
         p.cards = await PenguinCardCollection.get_collection(p.id)
         await p.send_tag('S_LOGINDEBUG', 'Finalizing login')

@@ -1,6 +1,6 @@
-from houdini.constants import FireNinja, WaterNinja, SnowNinja
-from houdini.handlers import FrameworkPacket, TagPacket
 from houdini import handlers
+from houdini.constants import FireNinja, WaterNinja, SnowNinja
+from houdini.handlers import FrameworkPacket
 
 
 @handlers.handler(FrameworkPacket('mmElementSelected'))

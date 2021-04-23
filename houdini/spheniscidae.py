@@ -11,7 +11,7 @@ import json
 class Spheniscidae:
     __slots__ = ['__reader', '__writer', 'server', 'logger',
                  'peer_name', 'received_packets', 'joined_world',
-                 'client_type', 'media_url']
+                 'client_type', 'media_url', 'snow_world', 'world_name']
 
     Delimiter = b'\x00'
 
