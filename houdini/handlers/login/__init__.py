@@ -35,9 +35,9 @@ async def handle_server_context(p, world, parameters):
         if curr_param[0] == 'tipMode':
             p.tip_mode = bool(curr_param[1])
         elif curr_param[0] == 'muted':
-            p.muted = (curr_param[1])
+            p.muted = bool(curr_param[1])
         else:
-            p.media_url = (curr_param[1])
+            p.media_url = bool(curr_param[1])
 
 
 @handlers.handler(TagPacket('/version'), pre_login=True)
