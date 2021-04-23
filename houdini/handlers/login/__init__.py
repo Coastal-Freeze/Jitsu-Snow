@@ -1,6 +1,4 @@
 import asyncio
-import random
-import string
 
 from houdini import handlers
 from houdini.constants import ClientType
@@ -95,13 +93,12 @@ class SnowMatchMaking:
         while all([len(players) > 0 for players in self._penguins.values()]):
             match_players = [self._penguins['fire'].pop(0), self._penguins['water'].pop(0),
                              self._penguins['snow'].pop(0)]
-            match_session = match_players[0].login_key
             room_name = match_players[0].id
             tr = self.server.redis.multi_exec()
             element_ids = [1, 2, 4]
             for player in match_players:
-                tr.set(f'{match_session}.{player.id}', room_name)
-                tr.set(f'{match_session}.{player.id}.element', element_ids[match_players.index(player)])
+                tr.set(f'cjsnow.{player.id}', room_name)
+                tr.set(f'cjsnow.{player.id}.element', element_ids[match_players.index(player)])
             await tr.execute()
 
             for penguin in match_players:
