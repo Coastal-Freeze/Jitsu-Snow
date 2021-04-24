@@ -37,7 +37,7 @@ async def handle_server_context(p, world, parameters):
         elif curr_param[0] == 'muted':
             p.muted = bool(curr_param[1])
         else:
-            p.media_url = bool(curr_param[1])
+            p.media_url = curr_param[1]
 
 
 @handlers.handler(TagPacket('/version'), pre_login=True)
