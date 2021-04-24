@@ -27,6 +27,7 @@ class Spheniscidae:
 
         self.joined_world = False
         self.client_type = None
+        self.snow_world = False
 
         self.received_packets = set()
 
