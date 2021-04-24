@@ -53,7 +53,7 @@ class ObjectManager:
             self.generate_obstacle_object(x, y)
 
     def get_alive_ninjas(self):
-        return [p for p in self.room.penguins if p.snow_ninja.damage <= p.snow_ninja.ninja.HealthPoints.value]
+        return [p for p in self.room.penguins if p.is_alive]
 
     def generate_players(self):
         ninjas = [FireNinja, WaterNinja, SnowNinja]
@@ -431,7 +431,7 @@ class ObjectManager:
 
     def get_heal_target_by_id(self, player, tile_id):
         for tile in player.snow_ninja.heal_target_objects:
-            if tile.owner in [FireNinja, WaterNinja]:
+            if tile.id in tile_id:
                 return True
         return False
 
