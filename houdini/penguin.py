@@ -28,6 +28,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
         'is_member',
         'membership_days_total',
         'membership_days_remain',
+        'snow_world',
 
         'avatar',
         'active_quests',
@@ -67,6 +68,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
                             screen_closed=False, round_closed=False)
         self.snow_ninja = SnowNinja(ready_object=ready_object)
         self.can_dig_gold = False
+        self.snow_world = False
 
     @property
     def party_state(self):
