@@ -3,7 +3,7 @@ import asyncio
 from houdini import handlers
 from houdini.constants import URLConstants
 from houdini.handlers import FrameworkPacket, TagPacket
-
+from houdini.handlers.snow.windowManager import join_battle
 
 @handlers.handler(TagPacket('/set_crossworld_ui'), pre_login=True)
 async def handle_cross_world(p, switch: bool):
@@ -12,10 +12,7 @@ async def handle_cross_world(p, switch: bool):
 
 @handlers.handler(TagPacket('/ready'))
 async def handle_penguin_ready(p):
-    if p.snow_world:
-        await snow_world_ready(p)
-    else:
-        await snow_login_ready(p)
+    await snow_login_ready(p)
 
 
 async def snow_login_ready(p):
@@ -126,9 +123,11 @@ async def handle_payload_action(p, action, **data):
                           targetWindow=p.media_url + URLConstants.PlayerSelection.value)
 
         # worldname = 'cjsnow_battle1' if 'game_type' == 'normal' else 'cjsnow_tusk'
+        await snow_world_ready(p)
+        await join_battle(p)
 
-        await p.send_tag('S_GOTO', 'cjsnow_coastalfreeze', 'snow_lobby', '',
-                         f'battleMode=0&tipMode={p.snow_ninja.tip_mode}&isMuted=false&base_asset_url={p.media_url}')
+        # await p.send_tag('S_GOTO', 'cjsnow_coastalfreeze', 'snow_lobby', '',
+        #                  f'battleMode=0&tipMode={p.snow_ninja.tip_mode}&isMuted=false&base_asset_url={p.media_url}')
 
 
 async def world_place_ready(p):
