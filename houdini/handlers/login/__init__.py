@@ -107,17 +107,6 @@ class SnowMatchMaking:
 
             for penguin in match_players:
                 penguin.world_name = match_session_id
-                await penguin.send_tag('W_PLACELIST',
-                                       '0:10001',
-                                       match_session_id,
-                                       '3 PvP Battle Arena',
-                                       1,
-                                       9,
-                                       5,
-                                       0,
-                                       8,
-                                       1,
-                                       0)
                 await penguin.send_json(action='jsonPayload',
                                         jsonPayload={'1': match_players[0].safe_name, '2': match_players[1].safe_name,
                                                      '4': match_players[2].safe_name},
