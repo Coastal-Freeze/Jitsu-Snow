@@ -124,7 +124,7 @@ class Spheniscidae:
 
         packet_id = parsed_data[0].strip()
         packet = TagPacket(packet_id)
-        #self.logger.debug(self.server.tag_listeners)
+        # self.logger.debug(self.server.tag_listeners)
         if packet in self.server.tag_listeners:
             tag_listeners = self.server.tag_listeners[packet]
 
