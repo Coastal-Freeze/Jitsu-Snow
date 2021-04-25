@@ -6,7 +6,7 @@ from houdini.converters import VersionChkConverter
 from houdini.data.buddy import BuddyList
 from houdini.handlers import XMLPacket, TagPacket
 from houdini.crypto import Crypto
-
+import json
 
 @handlers.handler(XMLPacket('verChk'))
 @handlers.allow_once
@@ -28,7 +28,6 @@ async def handle_version_check(p, version: VersionChkConverter):
 
 @handlers.handler(TagPacket('/place_context'), pre_login=True)
 async def handle_server_context(p, world, parameters):
-    p.world_name = world
     parameters_parsed = parameters.split('&')
     for parameter in parameters_parsed:
         curr_param = parameter.split('=')
@@ -106,7 +105,11 @@ class SnowMatchMaking:
             await tr.execute()
 
             for penguin in match_players:
-                penguin.world_name = match_session_id
+                server_token = await penguin.server.redis.get(f'{penguin.id}.{penguin.login_key}')
+                data = json.loads(server_token)
+                data['match_session'] = match_session_id
+                await penguin.server.redis.set(f'{penguin.id}.{penguin.login_key}', json.dumps(data))
+
                 await penguin.send_json(action='jsonPayload',
                                         jsonPayload={'1': match_players[0].safe_name, '2': match_players[1].safe_name,
                                                      '4': match_players[2].safe_name},

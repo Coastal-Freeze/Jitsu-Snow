@@ -108,7 +108,9 @@ async def snow_login(p, environment, p_id: int, token: str):
         p.logger.info(f'{p_id} failed to login L')
         return await p.send_tag('S_LOGINDEBUG', 'user code 1000')
 
-    await p.server.redis.delete(token)
+    if p.server_world:
+        p.world_name = server_token['match_session']
+        await p.server.redis.delete(token)
 
     p.login_key = token
 
