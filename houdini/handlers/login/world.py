@@ -104,6 +104,9 @@ async def snow_login(p, environment, p_id: int, token: str):
 
     peng_id = int(server_token['player_id'])
 
+    if 'match_session' in server_token:
+            p.snow_world = True
+
     if server_token is None or peng_id != p_id:
         p.logger.info(f'{p_id} failed to login L')
         return await p.send_tag('S_LOGINDEBUG', 'user code 1000')
