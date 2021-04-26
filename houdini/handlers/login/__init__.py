@@ -8,6 +8,7 @@ from houdini.handlers import XMLPacket, TagPacket
 from houdini.crypto import Crypto
 import json
 
+
 @handlers.handler(XMLPacket('verChk'))
 @handlers.allow_once
 async def handle_version_check(p, version: VersionChkConverter):
@@ -105,10 +106,10 @@ class SnowMatchMaking:
             await tr.execute()
 
             for penguin in match_players:
-                server_token = await penguin.server.redis.get(f'{penguin.id}.{penguin.login_key}')
+                server_token = await penguin.server.redis.get(penguin.login_key)
                 data = json.loads(server_token)
                 data['match_session'] = match_session_id
-                await penguin.server.redis.set(f'{penguin.id}.{penguin.login_key}', json.dumps(data))
+                await penguin.server.redis.set(penguin.login_key, json.dumps(data))
 
                 await penguin.send_json(action='jsonPayload',
                                         jsonPayload={'1': match_players[0].safe_name, '2': match_players[1].safe_name,
