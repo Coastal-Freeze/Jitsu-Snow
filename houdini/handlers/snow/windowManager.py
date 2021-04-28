@@ -1,9 +1,8 @@
-import asyncio
-
 from houdini import handlers
 from houdini.constants import FireNinja, WaterNinja, SnowNinja, URLConstants, TipType
-from houdini.handlers import FrameworkPacket
+from houdini.handlers import FrameworkPacket, TagPacket
 from houdini.handlers.snow.battle import SnowBattle
+import asyncio
 
 
 @handlers.handler(FrameworkPacket('windowManagerReady'))
@@ -26,15 +25,15 @@ async def handle_window_manager_ready(p, **kwargs):
                       defaultFontPath=p.media_url + URLConstants.BaseFonts.value)
     await p.send_json(type='playAction', action='skinRoomToRoom', url=p.media_url + URLConstants.LoadingScreen.value,
                       className='', variant=0)
-    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='bottomLayer',
-                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.ErrorHandler.value,
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='bottomLayer', \
+                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.ErrorHandler.value, \
                       xPercent=0, yPercent=0)
-    await p.send_json(action='loadWindow', assetPath='', initializationPayload={'game': 'snow', 'name': p.safe_name,
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload={'game': 'snow', 'name': p.safe_name, \
                                                                                 'powerCardsFire': fire_cnt,
                                                                                 'powerCardsWater': water_cnt,
                                                                                 'powerCardsSnow': snow_cnt},
-                      layerName='topLayer',
-                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.PlayerSelection.value,
+                      layerName='topLayer', \
+                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.PlayerSelection.value, \
                       xPercent=0, yPercent=0)
 
 
@@ -85,5 +84,5 @@ async def handle_ready_window(p, windowId=None, **data):
             await p.room.round_manager.begin_timer()
             if p.snow_ninja.tip_mode:
                 await p.room.show_tip(TipType.MOVE.value)
-    elif windowId == 'cardjitsu_snowclose.swf' and p.snow_world:
+    elif windowId == 'cardjitsu_snowclose.swf' and p.server.snow_world:
         asyncio.create_task(join_battle(p))

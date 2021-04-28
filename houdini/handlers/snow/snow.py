@@ -1,14 +1,17 @@
+from houdini.constants import ClientType, URLConstants, WaterNinja, SnowNinja, TipType, FireNinja
+from houdini.handlers import login, FrameworkPacket, TagPacket
+from houdini import handlers
 import asyncio
 
-from houdini import handlers
-from houdini.constants import URLConstants
-from houdini.handlers import FrameworkPacket, TagPacket
 
+@handlers.handler(TagPacket('/set_crossworld_ui'), pre_login=True)
+async def handle_cross_world(p, switch: bool):
+    p.server.snow_world = switch
 
 
 @handlers.handler(TagPacket('/ready'))
 async def handle_penguin_ready(p):
-    if p.snow_world:
+    if p.server.snow_world:
         await snow_world_ready(p)
     else:
         await snow_login_ready(p)
@@ -112,7 +115,6 @@ async def snow_world_ready(p):
 
     p.snow_ninja.ready_object['ready'] = True
 
-
 @handlers.handler(FrameworkPacket('payloadBILogAction'))
 async def handle_payload_action(p, action, **data):
     # TODO: handle tipmode and muted soundss
@@ -121,7 +123,7 @@ async def handle_payload_action(p, action, **data):
         await p.send_json(type='playAction', action='closeWindow',
                           targetWindow=p.media_url + URLConstants.PlayerSelection.value)
 
-        # worldname = 'cjsnow_battle1' if 'game_type' == 'normal' else 'cjsnow_tusk'
+        worldname = 'cjsnow_battle1' if 'game_type' == 'normal' else 'cjsnow_tusk'
 
         await p.send_tag('S_GOTO', 'cjsnow_coastalfreeze', 'snow_lobby', '',
                          f'battleMode=0&tipMode={p.snow_ninja.tip_mode}&isMuted=false&base_asset_url={p.media_url}')
@@ -145,7 +147,7 @@ async def login_place_ready(p):
 
 @handlers.handler(TagPacket('/place_ready'))
 async def handle_screen_ready(p):
-    if p.snow_world:
+    if p.server.snow_world:
         await world_place_ready(p)
     else:
         await login_place_ready(p)
@@ -159,10 +161,10 @@ async def handle_screen_ready(p):
 
 @handlers.handler(FrameworkPacket('quit'))
 async def handle_quit(p, **data):
-    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='toolLayer',
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='toolLayer', \
                       loadDescription='', type='playAction',
-                      windowUrl=p.media_url + URLConstants.ExternalInterface.value,
+                      windowUrl=p.media_url + URLConstants.ExternalInterface.value, \
                       xPercent=0, yPercent=0)
-    if p.snow_world:
+    if p.server.snow_world:
         p.snow_ninja.damage = p.snow_ninja.ninja.HealthPoints.value
         await p.room.player_manager.player_death(p)
