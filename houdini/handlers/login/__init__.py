@@ -101,8 +101,8 @@ class SnowMatchMaking:
             match_session_id = Crypto.generate_random_key()
 
             for player in match_players:
-                tr.set(f'cjsnow.{player.id}', room_name)
-                tr.set(f'cjsnow.{player.id}.element', element_ids[match_players.index(player)])
+                tr.set(f'{match_session_id}.{player.id}', room_name)
+                tr.set(f'{match_session_id}.{player.id}.element', element_ids[match_players.index(player)])
             await tr.execute()
 
             for penguin in match_players:
@@ -127,7 +127,7 @@ class SnowMatchMaking:
 
 @handlers.boot
 async def match_load(server):
-    if server.config.type == 'login':
+    if server.config.type != 'login':
         return
 
     server.snow_match_making = SnowMatchMaking(server)
