@@ -40,9 +40,9 @@ async def handle_window_manager_ready(p, **kwargs):
 
 async def join_battle(p):
     tr = p.server.redis.multi_exec()
-    tr.get(f'{p.world_name}.{p.id}')
-    tr.get(f'{p.world_name}.{p.id}.element')
-    tr.delete(f'{p.world_name}.{p.id}', f'{p.world_name}.{p.id}.element')
+    tr.get(f'cjsnow.{p.id}')
+    tr.get(f'cjsnow.{p.id}.element')
+    tr.delete(f'cjsnow.{p.id}', f'cjsnow.{p.id}.element')
     match_id, element, _ = await tr.execute()
 
     if match_id is None or element is None:

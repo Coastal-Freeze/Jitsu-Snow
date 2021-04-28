@@ -127,7 +127,7 @@ async def handle_payload_action(p, action, **data):
 
         # worldname = 'cjsnow_battle1' if 'game_type' == 'normal' else 'cjsnow_tusk'
 
-        await p.send_tag('S_GOTO', 'cjsnow_coastalfreeze', p.world_name, '',
+        await p.send_tag('S_GOTO', 'cjsnow_coastalfreeze', 'snow_lobby', '',
                          f'battleMode=0&tipMode={p.snow_ninja.tip_mode}&isMuted=false&base_asset_url={p.media_url}')
 
 

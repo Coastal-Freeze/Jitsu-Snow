@@ -99,7 +99,7 @@ async def handle_legacy_login(p, credentials: Credentials):
 @handlers.depends_on_packet(TagPacket('/version'), TagPacket('/place_context'))
 async def snow_login(p, environment, p_id: int, token: str):
     token = token.strip()
-    server_token = json.loads((await p.server.redis.get(token)))
+    server_token = json.loads(await p.server.redis.get(token))
     p.logger.info(server_token)
 
     peng_id = int(server_token['player_id'])
@@ -121,8 +121,6 @@ async def snow_login(p, environment, p_id: int, token: str):
 
         p.snow_ninja.muted = server_token['is_muted']
 
-        p.is_member = True
-
         p.cards = await PenguinCardCollection.get_collection(p.id)
         await p.send_tag('S_LOGINDEBUG', 'Finalizing login')
         await p.send_tag('S_LOGIN', p_id, '')
@@ -131,3 +129,5 @@ async def snow_login(p, environment, p_id: int, token: str):
         await p.send_tag('W_DISPLAYSTATE')
         await p.send_tag('W_ASSETSCOMPLETE', p_id, '')
         p.joined_world = True
+
+        p.is_member = True
