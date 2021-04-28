@@ -251,7 +251,7 @@ class EnemyManager:
         await self.room.send_tag('O_GONE', hpbar.id)
         self.room.enemy_manager.delete_enemy(enemy.id)
         self.object_manager.enemies.remove(enemy)
-        del self.object_manager.enemy_hpbars[self.object_manager.enemies.index(enemy)]
+        self.object_manager.enemy_hpbars.remove(hpbar)
         await self.room.sound_manager.play_sound('0:1840006')
         if len(self.object_manager.enemies) == 0:
             self.room.round_manager.round += 1
