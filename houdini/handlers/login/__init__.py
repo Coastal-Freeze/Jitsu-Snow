@@ -127,7 +127,7 @@ class SnowMatchMaking:
 
 @handlers.boot
 async def match_load(server):
-    if server.config.type != 'login':
+    if server.config.type != 'snow_login':
         return
 
     server.snow_match_making = SnowMatchMaking(server)
