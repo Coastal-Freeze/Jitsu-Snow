@@ -167,7 +167,7 @@ async def handle_screen_ready(p):
 
 
 @handlers.handler(FrameworkPacket('payloadBILogAction'))
-async def handle_payload_action(p, action):
+async def handle_payload_action(p, action, **data):
     # TODO: handle tipmode and muted soundss
     if action == 'funnel_prepare_to_battle_4':
         await asyncio.sleep(5)  # Prepare to battle animation
@@ -234,7 +234,7 @@ async def handle_penguin_ready(p):
 
 
 @handlers.handler(FrameworkPacket('quit'))
-async def handle_quit(p):
+async def handle_quit(p, **data):
     await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='toolLayer', \
                       loadDescription='', type='playAction',
                       windowUrl=p.media_url + URLConstants.ExternalInterface.value, \
@@ -242,7 +242,7 @@ async def handle_quit(p):
 
 
 @handlers.handler(FrameworkPacket('windowManagerReady'))
-async def handle_window_manager_ready(p):
+async def handle_window_manager_ready(p, **data):
     fire_cnt, water_cnt, snow_cnt = 0, 0, 0
     for card in p.cards.values():
         card_info = p.server.cards[card.card_id]
