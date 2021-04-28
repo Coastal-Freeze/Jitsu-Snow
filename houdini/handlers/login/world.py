@@ -104,6 +104,9 @@ async def snow_login(p, environment, p_id: int, token: str):
 
     peng_id = int(server_token['player_id'])
 
+    if 'match_session' in server_token:
+            p.snow_world = True
+
     if server_token is None or peng_id != p_id:
         p.logger.info(f'{p_id} failed to login L')
         return await p.send_tag('S_LOGINDEBUG', 'user code 1000')
@@ -123,11 +126,11 @@ async def snow_login(p, environment, p_id: int, token: str):
 
         p.cards = await PenguinCardCollection.get_collection(p.id)
         await p.send_tag('S_LOGINDEBUG', 'Finalizing login')
-        await p.send_tag('S_LOGIN', p_id, '')
+        await p.send_tag('S_LOGIN', p_id)
         await p.send_tag('S_WORLDTYPE', 0, 1, 0)
         await p.send_tag('S_WORLD', 1, 'cjsnow_0', '0:0', 0, 'none', 0, p_id, 'cjsnow_0', 0, 87.5309, 0)
         await p.send_tag('W_DISPLAYSTATE')
-        await p.send_tag('W_ASSETSCOMPLETE', p_id, '')
+        await p.send_tag('W_ASSETSCOMPLETE', p_id)
         p.joined_world = True
 
         p.is_member = True

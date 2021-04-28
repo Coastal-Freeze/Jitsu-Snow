@@ -5,7 +5,7 @@ from houdini.handlers import FrameworkPacket
 
 @handlers.handler(FrameworkPacket('roomToRoomComplete'), pre_login=True)
 async def handle_joined_room(p, **kwargs):
-    if p.server.snow_world:
+    if p.snow_world:
         for sprite in p.server.default_sprites:
             await p.send_tag('S_LOADSPRITE', f'0:{sprite}')
 

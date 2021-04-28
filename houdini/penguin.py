@@ -22,6 +22,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
         'muted',
         'media_url',
         'snow_ninja',
+        'world_name',
 
         'login_key',
 
@@ -51,6 +52,8 @@ class Penguin(Spheniscidae, penguin.Penguin):
         self.muted = False
 
         self.login_key = None
+
+        self.world_name = None
 
         self.is_member = False
         self.membership_days_total = 0

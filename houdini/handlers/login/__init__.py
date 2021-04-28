@@ -8,6 +8,7 @@ from houdini.handlers import XMLPacket, TagPacket
 from houdini.crypto import Crypto
 import json
 
+
 @handlers.handler(XMLPacket('verChk'))
 @handlers.allow_once
 async def handle_version_check(p, version: VersionChkConverter):
