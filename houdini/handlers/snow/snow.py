@@ -3,6 +3,24 @@ from houdini.constants import URLConstants
 from houdini.handlers import FrameworkPacket, TagPacket
 
 
+@handlers.handler(TagPacket('/place_ready'))
+async def handle_screen_ready(p):
+    await p.send_tag('O_HERE', 12, '0:1', 4.5, 2.5, 0, 1, 0, 0, 0, '', '0:1', 0, 1, 0)
+    await p.send_tag('O_HERE', 4, '0:1', 4.5, 2.5, 0, 1, 0, 0, 0, '', '0:1', 0, 1, 0)
+
+    # idk about these
+    await p.send_tag('O_HERE', 9, '0:1', 10.7667, 5.92222, 0, 1, 0, 0, 0, 'Actor5', '0:30021', 0, 0, 0)
+    await p.send_tag('O_HERE', 10, '0:1', 4.48869, -1.11106, 0, 1, 0, 0, 0, 'Actor6', '0:10002', 0, 0, 0)
+    await p.send_tag('O_HERE', 11, '0:1', 4.5, 6.1, 0, 1, 0, 0, 0, 'Actor7', '0:6740002', 0, 0, 0)
+    await p.send_tag('O_PLAYER', 12, '')  # prob change it ot the number
+    await p.send_tag('P_CAMERA', 4.48438, 2.48438, 0, 0, 1)
+    await p.send_tag('P_ZOOM', '1.000000')
+    await p.send_tag('P_LOCKZOOM', 1)
+    await p.send_tag('P_LOCKCAMERA', 1)
+
+    p.snow_ninja.ready_object['place_ready'] = True
+
+
 @handlers.handler(TagPacket('/ready'))
 async def handle_penguin_ready(p):
     await p.send_tag('W_INPUT', 'use', '4375706:1', 2, 3, 0, 'use')
