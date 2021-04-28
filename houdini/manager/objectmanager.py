@@ -322,18 +322,16 @@ class ObjectManager:
                 asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
 
     async def heal_penguin(self, p, tile_id):
-        tile = self.get_tile_by_id(tile_id)
+        penguin = [e for e in self.room.penguins if e.tile.id == tile_id][0]
 
-        if tile.owner in [FireNinja, WaterNinja]:  # Healing Target
-            penguin = self.get_penguin_by_ninja_type(tile.owner)
-            p.snow_ninja.heal_target = penguin
-            for target_obj in p.snow_ninja.heal_target_objects:
-                if target_obj.x == penguin.tile.x and target_obj.y == penguin.tile.y:
-                    target_obj.parent = SelectedPenguinTarget
-                    asyncio.create_task(self.room.animation_manager.green_target(p, target_obj))
-                else:
-                    target_obj.parent = PenguinTarget
-                    asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
+        p.snow_ninja.heal_target = penguin
+        for target_obj in p.snow_ninja.heal_target_objects:
+            if target_obj.x == penguin.tile.x and target_obj.y == penguin.tile.y:
+                target_obj.parent = SelectedPenguinTarget
+                asyncio.create_task(self.room.animation_manager.green_target(p, target_obj))
+            else:
+                target_obj.parent = PenguinTarget
+                asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
 
     async def player_move(self, penguin):
         await self.room.animation_manager.play_animation(penguin.snow_ninja.tile,

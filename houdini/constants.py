@@ -176,7 +176,7 @@ class EnemyTank(enum.Enum):
     HitAnimation = '0:100302'
     HitAnimationDuration = 1200
     HitAnimationSound = '0:1840003'
-    KnockoutAnimation = '0:100309'
+    KnockoutAnimation = '0:100304'
     
 
 
@@ -199,7 +199,7 @@ class EnemyScrap(enum.Enum):
     HitAnimation = '0:100318'
     HitAnimationDuration = 1200
     HitAnimationSound = '0:1840005'
-    KnockoutAnimation = '0:100309'
+    KnockoutAnimation = '0:100320'
     
 
 
