@@ -67,7 +67,7 @@ class Spheniscidae:
         await self.send_line(line,'\r\n')
 
     async def send_json(self, **data):
-        EVENT_NUM = 102 if self.server.type == 'world' else 101
+        EVENT_NUM = 102 if self.server.config.type == 'world' else 101
         await self.send_tag('UI_CLIENTEVENT', EVENT_NUM, 'receivedJson', json.dumps(data, separators=(',', ':')))
 
     async def send_xml(self, xml_dict):
