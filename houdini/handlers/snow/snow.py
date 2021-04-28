@@ -5,10 +5,6 @@ from houdini.constants import URLConstants
 from houdini.handlers import FrameworkPacket, TagPacket
 
 
-@handlers.handler(TagPacket('/set_crossworld_ui'), pre_login=True)
-async def handle_cross_world(p, switch: bool):
-    p.snow_world = switch
-
 
 @handlers.handler(TagPacket('/ready'))
 async def handle_penguin_ready(p):
