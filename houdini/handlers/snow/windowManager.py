@@ -6,9 +6,9 @@ import asyncio
 
 async def join_battle(p):
     tr = p.server.redis.multi_exec()
-    tr.get(f'{p.world_name}.{p.id}')
-    tr.get(f'{p.world_name}.{p.id}.element')
-    tr.delete(f'{p.world_name}.{p.id}', f'{p.world_name}.{p.id}.element')
+    tr.get(f'{p.world_name}.{p.session_id}')
+    tr.get(f'{p.world_name}.{p.session_id}.element')
+    tr.delete(f'{p.world_name}.{p.session_id}', f'{p.world_name}.{p.session_id}.element')
     match_id, element, _ = await tr.execute()
 
     if match_id is None or element is None:

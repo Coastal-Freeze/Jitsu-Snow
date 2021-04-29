@@ -100,15 +100,16 @@ class SnowMatchMaking:
             element_ids = [1, 2, 4]
             match_session_id = Crypto.generate_random_key()
 
-            for player in match_players:
-                tr.set(f'{match_session_id}.{player.id}', room_name)
-                tr.set(f'{match_session_id}.{player.id}.element', element_ids[match_players.index(player)])
-            await tr.execute()
-
-            for penguin in match_players:
+            for i, penguin in enumerate(match_players):
+                session_id = Crypto.generate_random_key()
+                tr.set(f'{match_session_id}.{session_id}', room_name)
+                tr.set(f'{match_session_id}.{session_id}.element', element_ids[i])
+                await tr.execute()
                 server_token = await penguin.server.redis.get(penguin.login_key)
                 data = json.loads(server_token)
+
                 data['match_session'] = match_session_id
+                data['session_id'] = session_id
                 await penguin.server.redis.set(penguin.login_key, json.dumps(data))
 
                 await penguin.send_json(action='jsonPayload',

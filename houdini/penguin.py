@@ -20,9 +20,11 @@ class Penguin(Spheniscidae, penguin.Penguin):
         'waddle',
         'table',
         'muted',
+
         'media_url',
         'snow_ninja',
         'world_name',
+        'session_id',
 
         'login_key',
 
@@ -54,6 +56,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
         self.login_key = None
 
         self.world_name = None
+        self.session_id = None
 
         self.is_member = False
         self.membership_days_total = 0
