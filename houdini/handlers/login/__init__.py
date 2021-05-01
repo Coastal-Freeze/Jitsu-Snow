@@ -104,7 +104,7 @@ class SnowMatchMaking:
                 session_id = Crypto.generate_random_key()
                 tr.set(f'{match_session_id}.{session_id}', room_name)
                 tr.set(f'{match_session_id}.{session_id}.element', element_ids[i])
-                await tr.execute()
+
                 server_token = await penguin.server.redis.get(penguin.login_key)
                 data = json.loads(server_token)
 
@@ -118,6 +118,7 @@ class SnowMatchMaking:
                                         targetWindow=f'{match_players[0].media_url}minigames/cjsnow/en_US/deploy/swf'
                                                      f'/ui/windows/cardjitsu_snowplayerselect.swf',
                                         triggerName='matchFound', type='immediateAction')
+            await tr.execute()
 
     def add_penguin(self, p):
         self._penguins[p.snow_ninja.tile.Element.value].append(p)
