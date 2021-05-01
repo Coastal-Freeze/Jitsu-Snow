@@ -75,6 +75,10 @@ class SnowBattle:
 @handlers.handler(TagPacket('use'))
 async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: float):
     # p.logger.error('heal target: ' + p.room.object_manager.get_heal_target_by_id(p, tile_id))
+    ninjas = [4, 12, 13]
+    if tile_id in ninjas and p.room.object_manager.get_penguin_by_id(tile_id) is not None:
+        await p.room.object_manager.heal_penguin(p, tile_id)
+
     if tile_id <= p.room.object_manager.map[-1][-1].id:  # Is it a tile?
         tile = p.room.object_manager.get_tile_by_id(tile_id)
 
@@ -85,9 +89,6 @@ async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: fl
             await p.room.object_manager.plan_movement(p, tile)
     elif p.room.object_manager.get_enemy_by_id(tile_id) is not None:
         await p.room.object_manager.select_enemy(p, tile_id)
-    elif p.room.object_manager.get_penguin_by_id(tile_id) is not None:
-        await p.room.object_manager.heal_penguin(p, tile_id)
-
 
 @handlers.handler(FrameworkPacket('confirmClicked'))
 async def handle_show_confirm(p, **data):

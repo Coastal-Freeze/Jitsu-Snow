@@ -49,7 +49,6 @@ class EnemyManager:
 
                 await self.move_enemy(enemy, new_x, new_y)
 
-                await asyncio.sleep(3)
             else:  # Attack nearby user
                 for ninja in players:
                     penguin = self.object_manager.get_penguin_by_ninja_type(ninja)
@@ -57,7 +56,6 @@ class EnemyManager:
                         return await self.enemy_damage(penguin, enemy)
                     else:
                         return await self.room.player_manager.player_death(penguin)
-            await asyncio.sleep(1.5)
 
     async def enemy_damage(self, p, enemy):
         damage = enemy.parent.Attack.value
@@ -100,7 +98,7 @@ class EnemyManager:
 
         await self.room.sound_manager.play_sound(p.snow_ninja.ninja.HitAnimationSound.value)
 
-        p.snow_ninja.damage = max(0, min(p.snow_ninja.damage + damage, p.snow_ninja.ninja.HealthPoints.value))
+        p.snow_ninja.damage += damage
         hpbar = self.object_manager.player_hpbars[
             self.object_manager.players.index(p.snow_ninja.tile)]
 
@@ -249,7 +247,7 @@ class EnemyManager:
         await asyncio.sleep(2.5)
         await self.room.send_tag('O_GONE', enemy.id)
         await self.room.send_tag('O_GONE', hpbar.id)
-        self.room.enemy_manager.delete_enemy(enemy.id)
+        self.delete_enemy(enemy.id)
         self.object_manager.enemies.remove(enemy)
         self.object_manager.enemy_hpbars.remove(hpbar)
         await self.room.sound_manager.play_sound('0:1840006')
