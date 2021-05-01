@@ -326,7 +326,7 @@ class ObjectManager:
 
         p.snow_ninja.heal_target = penguin
         for target_obj in p.snow_ninja.heal_target_objects:
-            if target_obj.x == penguin.tile.x and target_obj.y == penguin.tile.y:
+            if target_obj.x == penguin.snow_ninja.tile.x and target_obj.y == penguin.snow_ninja.tile.y:
                 target_obj.parent = SelectedPenguinTarget
                 asyncio.create_task(self.room.animation_manager.green_target(p, target_obj))
             else:
