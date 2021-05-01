@@ -54,8 +54,6 @@ class EnemyManager:
                     penguin = self.object_manager.get_penguin_by_ninja_type(ninja)
                     if penguin.is_alive:
                         return await self.enemy_damage(penguin, enemy)
-                    else:
-                        return await self.room.player_manager.player_death(penguin)
 
     async def enemy_damage(self, p, enemy):
         damage = enemy.parent.Attack.value
@@ -109,6 +107,9 @@ class EnemyManager:
         await asyncio.sleep(0.5)
         await p.room.send_tag('O_GONE', tile_particle.id)
         await p.room.send_tag('O_GONE', damage_number.id)
+
+        if not p.is_alive:
+            await self.room.player_manager.player_death(p)
 
     async def move_enemy(self, enemy, x, y):
         enemy_hp_bar = self.object_manager.enemy_hpbars[
