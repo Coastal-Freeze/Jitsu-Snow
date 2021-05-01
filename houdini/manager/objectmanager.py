@@ -322,7 +322,7 @@ class ObjectManager:
                 asyncio.create_task(self.room.animation_manager.display_target(p, target_obj))
 
     async def heal_penguin(self, p, tile_id):
-        penguin = [e for e in self.room.penguins if e.tile.id == tile_id][0]
+        penguin = [e for e in self.room.penguins if e.snow_ninja.tile.id == tile_id][0]
 
         p.snow_ninja.heal_target = penguin
         for target_obj in p.snow_ninja.heal_target_objects:

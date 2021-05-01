@@ -404,7 +404,7 @@ class Penguin(Spheniscidae, penguin.Penguin):
     async def add_stamina(self, stamina):
         self.snow_ninja.stamina += stamina
         payload = {'cycle': False, 'stamina': self.snow_ninja.stamina}
-        if self.snow_ninja.stamina == 10:
+        if self.snow_ninja.stamina == 12 and self.snow_ninja.cards:
             self.snow_ninja.stamina = 0
             card = self.add_powercard()
             payload['cycle'] = True
