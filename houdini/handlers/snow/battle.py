@@ -79,7 +79,7 @@ async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: fl
     if tile_id in ninjas and p.room.object_manager.get_penguin_by_id(tile_id) is not None:
         await p.room.object_manager.heal_penguin(p, tile_id)
 
-    if tile_id <= p.room.object_manager.map[-1][-1].id:  # Is it a tile?
+    elif tile_id <= p.room.object_manager.map[-1][-1].id:  # Is it a tile?
         tile = p.room.object_manager.get_tile_by_id(tile_id)
 
         if tile is not None and tile.id == tile_id:
