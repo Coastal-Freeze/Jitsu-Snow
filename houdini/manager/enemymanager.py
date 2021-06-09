@@ -157,7 +157,9 @@ class EnemyManager:
                     continue
 
                 if self.object_manager.map[x_i][y_i].owner in [FireNinja, WaterNinja, SnowNinja]:
-                    owners.append(self.object_manager.map[x_i][y_i].owner)
+                    penguin = self.object_manager.get_penguin_by_ninja_type(self.object_manager.map[x_i][y_i].owner)
+                    if penguin.is_alive:
+                        owners.append(self.object_manager.map[x_i][y_i].owner)
 
         return owners
 
