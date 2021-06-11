@@ -3,9 +3,12 @@
 
   ~~-fix spaghetti code~~
   
-  -fix enemy being stupid
+  ~~-fix enemy being stupid~~
   
   -fix powercard
   
   -fix healing
+  
+  - add endgame
+  - add tusk
   
