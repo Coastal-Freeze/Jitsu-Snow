@@ -20,29 +20,31 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint .
+        ls
+        pylint houdini/
         ...
 
     - name: Lint with black
       run: |
         pip install black
-        black .
+        black houdini/
         ...
 
     - name: Lint with isort
       run: |
         pip install isort
-        isort .
+        isort houdini/
         ...
 
     - name: Lint with pycodestyle
       run: |
         pip install pycodestyle
-        pycodestyle .
+        pycodestyle houdini/
         ...
 
     - name: Lint with mypy
       run: |
         pip install mypy
-        mypy .
+        
+        mypy houdini/
         ...
