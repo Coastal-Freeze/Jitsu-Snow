@@ -3,7 +3,5 @@ loguru==0.5.3
 defusedxml==0.7.1
 hachiko==0.3.0
 ujson==4.0.2
-dataclasses==0.8
 gino==1.0.1
 numpy==1.21.0
-secrets==1.0.2
