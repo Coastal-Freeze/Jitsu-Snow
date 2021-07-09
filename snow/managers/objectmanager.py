@@ -346,11 +346,9 @@ class ObjectManager:
         self.map[penguin.tile.x][penguin.tile.y].owner = None
         new_tile = penguin.last_object
         new_tile.owner = penguin.ninja
-        # penguin.tile = new_tile
 
         penguin.tile.x = new_tile.x
         penguin.tile.y = new_tile.y
-        # penguin.tile.id = new_tile.id
 
         healthbar = self.get_healthbar(penguin.ninja)
 

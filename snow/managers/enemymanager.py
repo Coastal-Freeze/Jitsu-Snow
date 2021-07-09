@@ -245,17 +245,17 @@ class EnemyManager:
 
         return neighbors
 
-    async def enemy_death(self, enemy, hpbar):
+    async def enemy_death(self, enemy, hp_bar):
         await self.room.animation_manager.play_animation(enemy,
                                                          enemy.owner.knockout_animation.value, 'play_once',
                                                          2500)
         self.object_manager.map[enemy.x][enemy.y].owner = None
         await asyncio.sleep(2.5)
         await self.room.send_tag('O_GONE', enemy.id)
-        await self.room.send_tag('O_GONE', hpbar.id)
+        await self.room.send_tag('O_GONE', hp_bar.id)
         self.delete_enemy(enemy.id)
         self.object_manager.enemies.remove(enemy)
-        self.object_manager.enemy_hpbars.remove(hpbar)
+        self.object_manager.enemy_hpbars.remove(hp_bar)
         await self.room.sound_manager.play_sound('0:1840006')
         if len(self.object_manager.enemies) == 0:
             self.room.round_manager.round += 1

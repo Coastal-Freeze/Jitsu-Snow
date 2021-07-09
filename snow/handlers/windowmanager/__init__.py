@@ -1,4 +1,4 @@
-from snow.constants import TipType, WaterNinja, FireNinja, SnowNinja
+from snow.constants import TipType, WaterNinja, FireNinja, SnowNinja, URLConstants
 from snow.events import FrameworkPacket, event, player_attribute
 import asyncio
 
@@ -44,3 +44,13 @@ async def handle_ready_window(p, windowId=None, **data):
                 await p.room.show_tip(TipType.MOVE.value)
     elif windowId == 'cardjitsu_snowclose.swf':
         asyncio.create_task(join_battle(p))
+
+
+@event.on(FrameworkPacket('quit'))
+async def handle_quit(p, **data):
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='toolLayer',
+                      loadDescription='', type='playAction',
+                      windowUrl=p.media_url + URLConstants.external_interface.value,
+                      xPercent=0, yPercent=0)
+    if p.room is not None:
+        await p.room.player_manager.player_death(p)

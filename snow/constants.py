@@ -51,7 +51,7 @@ class FireNinja(enum.Enum):
     hit_animation_sound = '0:1840008'
     idle_animation = '0:100340'
     idle_animation_duration = 800
-    SelectedTileAnimation = '0:30070'
+    selected_tile_animation = '0:30070'
     knockout_animation = '0:100356'
     knockout_animation_loop = '0:100357'
 
@@ -76,7 +76,7 @@ class WaterNinja(enum.Enum):
     hit_animation_sound = '0:1840008'
     idle_animation = '0:100322'
     idle_animation_duration = 700
-    SelectedTileAnimation = '0:30044'
+    selected_tile_animation = '0:30044'
     knockout_animation = '0:100325'
     knockout_animation_loop = '0:100326'
     revive_animation = '0:100332'
@@ -102,7 +102,7 @@ class SnowNinja(enum.Enum):
     hit_animation_sound = '0:1840008'
     idle_animation = '0:100361'
     idle_animation_duration = 1100
-    SelectedTileAnimation = '0:100018'
+    selected_tile_animation = '0:100018'
     knockout_animation = '0:100365'
     knockout_animation_loop = '0:100366'
     heal_animation = '0:100363'
@@ -359,17 +359,17 @@ class RoundState(enum.IntEnum):
 
 
 class URLConstants(enum.Enum):
-    BaseAssets = ''
-    BaseFonts = 'fonts/'
+    base_assets = ''
+    base_fonts = 'fonts/'
 
-    CloseWindow = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowclose.swf'
-    ErrorHandler = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowerrorhandler.swf'
-    ExternalInterface = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowexternalinterfaceconnector.swf'
-    LoadingScreen = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/../assets/cjsnow_loadingscreenassets.swf'
-    PlayerSelection = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowplayerselect.swf'
-    SnowTimer = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowtimer.swf'
-    SnowUI = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowui.swf'
-    WindowManager = 'minigames/cjsnow/en_US/deploy/swf/windowManager/windowmanager.swf'
+    close_window = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowclose.swf'
+    error_handler = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowerror_handler.swf'
+    external_interface = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowexternal_interfaceconnector.swf'
+    loading_screen = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/../assets/cjsnow_loading_screenassets.swf'
+    player_selection = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowplayerselect.swf'
+    snow_timer = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowtimer.swf'
+    snow_ui = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowui.swf'
+    window_manager = 'minigames/cjsnow/en_US/deploy/swf/windowManager/windowmanager.swf'
 
 
 CJ_SNOW_STAMPS = [{

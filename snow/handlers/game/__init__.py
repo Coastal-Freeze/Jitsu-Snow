@@ -1,10 +1,5 @@
-from dataclasses import dataclass
-
 from snow.events import event, TagPacket, FrameworkPacket, player_attribute
 from snow.constants import TipType
-
-
-# from houdini.handlers import TagPacket, FrameworkPacket
 
 
 @event.on(TagPacket('use'))

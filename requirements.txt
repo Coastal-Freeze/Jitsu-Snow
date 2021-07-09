@@ -1,7 +1,10 @@
-awebus==1.0a6
-loguru==0.5.3
-defusedxml==0.7.1
-hachiko==0.3.0
-ujson==4.0.2
-gino==1.0.1
-numpy==1.21.0
+awebus
+loguru
+defusedxml
+hachiko
+ujson
+gino
+uvloop; sys_platform != 'win32'
+
+asyncio
+aioredis

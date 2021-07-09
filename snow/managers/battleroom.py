@@ -1,23 +1,9 @@
-import typing
-from dataclasses import dataclass
-
 from snow.managers.animationmanager import AnimationManager
 from snow.managers.enemymanager import EnemyManager
 from snow.managers.objectmanager import ObjectManager
 from snow.managers.playermanager import PlayerManager
 from snow.managers.roundmanager import RoundManager
 from snow.managers.soundmanager import SoundManager
-
-
-@dataclass
-class Object:
-    id: int
-    name: str
-    art_index: str
-    template_id: str
-    x: float
-    y: float
-    owner: 'typing.Any'
 
 
 class BattleRoom:
@@ -35,12 +21,12 @@ class BattleRoom:
         self.player_manager = PlayerManager(self)
 
     def is_ready(self, ready_type='ready'):
-        ready = all(map(lambda ninja: ninja.snow_ninja.ready_object[ready_type], self.penguins))
+        ready = all(map(lambda p: p[ready_type], self.penguins))
         return ready
 
     def clear_ready(self):
         for penguin in self.penguins:
-            penguin.snow_ninja.ready_object['ready'] = False
+            penguin['ready'] = False
 
     async def increase_stamina(self):
         for penguin in self.penguins:

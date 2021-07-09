@@ -3,6 +3,7 @@ import random
 from snow.constants import URLConstants
 from snow.data import penguin
 from snow.core.client import Client
+from snow.data.ninja import PenguinCardCollection
 from snow.managers.battleroom import BattleRoom
 from loguru import logger
 
@@ -10,16 +11,44 @@ from loguru import logger
 class Penguin(Client, penguin.Penguin):
     __slots__ = (
         'muted',
-        'media_url',
-        'snow_ninja',
-        'session_id',
-        'login_key',
-        'is_member',
-        'snow_world',
-        'event_num'
+        'event_num',
+
+        'ready',
+        'place_ready',
+        'finished_loading',
+        'timer_ready',
+        'screen_closed',
+        'round_closed',
+
+        'wait',
+        'damage',
+        'stamina',
+
+        'tile',
+        'ninja',
+
+        'current_target',
+        'heal_target',
+
+        'deck',
+
+        'target_objects',
+        'heal_target_objects',
+        'last_object',
+        'modified_objects',
+
+        'tip_mode',
+        'confirm',
+        'muted',
+        'cards_depleted',
+
+        'login_key'
+
+
     )
 
     room: BattleRoom
+    cards: PenguinCardCollection
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -47,7 +76,6 @@ class Penguin(Client, penguin.Penguin):
         self.current_target = None
         self.heal_target = None
 
-        self.cards = []
         self.deck = []
 
         self.target_objects = []
@@ -89,7 +117,7 @@ class Penguin(Client, penguin.Penguin):
     async def add_stamina(self, stamina):
         self.stamina += stamina
         payload = {'cycle': False, 'stamina': self.stamina}
-        if self.stamina == 12 and self.cards:
+        if self.stamina == 12 and self.cards and len(self.deck) < 4:
             self.stamina = 0
             card = self.add_powercard()
             payload['cycle'] = True

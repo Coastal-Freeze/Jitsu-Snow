@@ -5,7 +5,7 @@ from xml.etree.cElementTree import Element, SubElement, tostring
 import defusedxml.cElementTree as Et
 from loguru import logger
 
-from snow.events import TagPacket, FrameworkPacket
+from snow.events import TagPacket, FrameworkPacket, event
 
 
 class AuthorityError(BaseException):
@@ -70,9 +70,10 @@ class Client:
             logger.debug(f'Outgoing data: {data}')
             self.__writer.write((data + delimiter).encode('utf-8'))
 
-    async def close(self):
+    async def close(self, msg = None):
+        await self.send_tag("S_DISCONNECT", (msg if msg is not None else "connection closed cleanly"), -1)
         self.__writer.close()
-
+        await self.__writer.wait_closed()
         await self._client_disconnected()
 
     async def __handle_tag_data(self, data):
@@ -81,15 +82,7 @@ class Client:
 
         packet_id = parsed_data[0].strip()
         packet = TagPacket(packet_id)
-        if packet in self.server.tag_listeners:
-            tag_listeners = self.server.tag_listeners[packet]
-
-            for listener in tag_listeners:
-                if not self.__writer.is_closing():
-                    await listener(self, parsed_data[1:])
-            self.received_packets.add(packet)
-        else:
-            logger.error('Handler for \'%s\' doesn\'t exist!', packet_id)
+        await event.emit(packet, self, *parsed_data[1:])
 
     async def __handle_framework_data(self, data):
         logger.debug(f'Received Framework data: {data}')
@@ -97,16 +90,8 @@ class Client:
 
         packet_id = parsed_data['triggerName']
         packet = FrameworkPacket(packet_id)
-
-        if packet in self.server.framework_listeners:
-            framework_listeners = self.server.framework_listeners[packet]
-
-            for listener in framework_listeners:
-                if not self.__writer.is_closing():
-                    await listener(self, **parsed_data)
-            self.received_packets.add(packet)
-        else:
-            logger.error('Handler for %s doesn\'t exist!', packet_id)
+        
+        await event.emit(packet, self, **parsed_data)
 
     async def __handle_xml_data(self, data):
         logger.debug(f'Received XML data: {data}')
@@ -121,12 +106,12 @@ class Client:
     async def _client_connected(self):
         logger.info(f'Client {self.peer_name} connected')
 
-        await self.server.dummy_event_listeners.fire('connected', self)
+        await event.emit('connected', self)
 
     async def _client_disconnected(self):
         logger.info(f'Client disconnected')
 
-        await self.server.dummy_event_listeners.fire('disconnected', self)
+        await event.emit('disconnected', self)
 
     async def __data_received(self, data):
         data = data.decode()[:-1]
@@ -134,9 +119,9 @@ class Client:
             if data.startswith('<'):
                 await self.__handle_xml_data(data)
             elif data.startswith('#'):
-                await self.__handle_framework_data(data)
+                await self.__handle_framework_data(data[:-1])
             else:
-                await self.__handle_tag_data(data)
+                await self.__handle_tag_data(data[:-1])
         except AuthorityError:
             logger.debug(f'{self} tried to send game packet before authentication')
 
@@ -155,16 +140,16 @@ class Client:
                 if data:
                     await self.__data_received(start_delimiter + data)
                 else:
-                    self.__writer.close()
+                    await self.close()
                 await self.__writer.drain()
             except IncompleteReadError:
-                self.__writer.close()
+                await self.close()
             except CancelledError:
-                self.__writer.close()
+                await self.close()
             except ConnectionResetError:
-                self.__writer.close()
+                await self.close()
             except LimitOverrunError:
-                self.__writer.close()
+                await self.close()
             except BaseException as e:
                 logger.exception(e.__traceback__)
 

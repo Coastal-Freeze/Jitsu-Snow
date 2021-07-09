@@ -4,6 +4,7 @@ import random
 from snow.constants import BonusRoundType, RoundState, OccupiedEnemySpawnTile, URLConstants
 from loguru import logger
 
+
 class RoundManager:
 
     def __init__(self, room):

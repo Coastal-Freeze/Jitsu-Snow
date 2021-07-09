@@ -22,8 +22,8 @@ class PlayerManager:
                                                     p.ninja.knockout_animation_loop.value, 'loop',
                                                     800)
         p.damage = p.ninja.health_points.value
-        hpbar = self.object_manager.player_hpbars[self.object_manager.players.index(p.tile)]
-        await self.room.send_tag('O_SPRITEANIM', hpbar.id, 60, 60, 0, 'play_once', 500)
+        hp_bar = self.object_manager.player_hpbars[self.object_manager.players.index(p.tile)]
+        await self.room.send_tag('O_SPRITEANIM', hp_bar.id, 60, 60, 0, 'play_once', 500)
 
         await self.sound_manager.play_sound('0:1840007')
 
@@ -60,11 +60,11 @@ class PlayerManager:
 
     async def player_healing(self, penguin, target):
         await penguin.room.sound_manager.play_sound(penguin.ninja.attack_animation_sound.value)
-        hpbar = self.object_manager.player_hpbars[self.object_manager.players.index(target)]
+        hp_bar = self.object_manager.player_hpbars[self.object_manager.players.index(target)]
         penguin.damage -= 12
         hp_percentage = round((penguin.damage * 100) / penguin.ninja.health_points.value)
-        healthbar = round((hp_percentage * 59) / 100)
-        await self.room.send_tag('O_SPRITEANIM', hpbar.id, healthbar - 12, healthbar, 0, 'play_once', 500)
+        health_bar = round((hp_percentage * 59) / 100)
+        await self.room.send_tag('O_SPRITEANIM', hp_bar.id, health_bar - 12, health_bar, 0, 'play_once', 500)
 
     async def player_damage(self, p, enemy, damage):
         if enemy not in self.enemies:
