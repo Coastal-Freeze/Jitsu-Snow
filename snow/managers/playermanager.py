@@ -112,7 +112,7 @@ class PlayerManager:
         await self.animation_manager.play_animation(enemy,
                                                     enemy.owner.idle_animation.value, 'loop',
                                                     enemy.owner.idle_animation_duration.value)
-        await self.sound_manager.play_sound(enemy.owner.hit_animationSound.value)
+        await self.sound_manager.play_sound(enemy.owner.hit_animation_sound.value)
 
         hp_bar = self.object_manager.enemy_hpbars[self.enemies.index(enemy)]
         enemy.damage += damage

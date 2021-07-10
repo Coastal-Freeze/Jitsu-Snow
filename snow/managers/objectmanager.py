@@ -7,7 +7,7 @@ from snow.constants import FireNinja, WaterNinja, SnowNinja
 from snow.constants import MapConstants, MovementTile, EnemyObject, \
     PenguinObject, HPObject, ObstacleObject, EnemyTarget, SelectedEnemyTarget, SelectedPenguinTarget, PenguinTarget
 from snow.constants import OccupiedPenguinSpawnTile
-
+from loguru import logger
 
 class ObjectManager:
 
@@ -375,7 +375,7 @@ class ObjectManager:
 
         penguin.last_object = None
         await asyncio.sleep(penguin.ninja.move_animation_duration.value * 0.001)
-        penguin.logger.error(penguin.current_target)
+        logger.error(penguin.current_target)
 
     async def do_move_action(self):
         for penguin in self.get_alive_ninjas():
@@ -487,7 +487,7 @@ class ObjectManager:
             adjusted_y = round(player_obj.y + player_obj.parent.y_coordinate_offset.value,
                                player_obj.parent.y_coordinate_decimals.value)
 
-            await p.send_tag('O_move', player_obj.id, adjusted_x, adjusted_y, 128)
+            await p.send_tag('O_MOVE', player_obj.id, adjusted_x, adjusted_y, 128)
             await p.send_tag('P_TILECHANGE', player_obj.x, player_obj.y, OccupiedPenguinSpawnTile.tile_url.value)
             await p.send_tag('O_ANIM', player_obj.id, player_obj.owner.idle_animation.value, 'loop',
                              player_obj.owner.idle_animation_duration.value, 1, 0, player_obj.id, i + 1, 0, 0)

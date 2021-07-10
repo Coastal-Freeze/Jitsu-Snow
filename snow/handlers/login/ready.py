@@ -7,16 +7,11 @@ from loguru import logger
 from snow.data.penguin import Penguin
 
 
+
 @event.on(TagPacket('/place_ready'))
 async def handle_screen_ready(p):
-    await p.send_tag('O_HERE', 12, '0:1', 4.5, 2.5, 0, 1, 0, 0, 0, '', '0:1', 0, 1, 0)
-    await p.send_tag('O_HERE', 4, '0:1', 4.5, 2.5, 0, 1, 0, 0, 0, '', '0:1', 0, 1, 0)
-
-    # idk about these
-    await p.send_tag('O_HERE', 9, '0:1', 10.7667, 5.92222, 0, 1, 0, 0, 0, 'Actor5', '0:30021', 0, 0, 0)
-    await p.send_tag('O_HERE', 10, '0:1', 4.48869, -1.11106, 0, 1, 0, 0, 0, 'Actor6', '0:10002', 0, 0, 0)
-    await p.send_tag('O_HERE', 11, '0:1', 4.5, 6.1, 0, 1, 0, 0, 0, 'Actor7', '0:6740002', 0, 0, 0)
-    await p.send_tag('O_PLAYER', 12, '')  # prob change it ot the number
+    await p.send_tag('O_HERE', 4, '0:1', 5, 2.5, 0, 1, 0, 0, 0, '', '0:1', 0, 1, 0)
+    await p.send_tag('O_PLAYER', 4, '')
     await p.send_tag('P_CAMERA', 4.48438, 2.48438, 0, 0, 1)
     await p.send_tag('P_ZOOM', '1.000000')
     await p.send_tag('P_LOCKZOOM', 1)
@@ -67,9 +62,12 @@ async def handle_penguin_ready(p):
     await p.send_tag('P_LOCKOBJECTS', 0)
     await p.send_tag('UI_BGSPRITE', '-1:-1', 0, '0.000000', '0.000000')
 
-    for tile in p.server.tiles:
-        await p.send_tag('P_TILE', tile.tile_url.value, '', 0, 0, 1, tile.sprite_index.value, tile.tile_name.value, 0, 0,
-                         0, tile.tile_collection.value)
+    await p.send_tag('P_TILE', 0, '', 0, 0, 1, '0:2', 'Empty Tile', 0, 0, 0, '0:7940006')
+    await p.send_tag('P_TILE', 1, '', 0, 0, 1, '0:2', 'blankblue', 0, 0, 0, '0:7940007')
+    await p.send_tag('P_TILE', 2, '', 0, 0, 1, '0:3', 'blankgreen', 0, 0, 0, '0:7940008')
+    await p.send_tag('P_TILE', 3, '', 0, 0, 1, '0:4', 'blankgrey', 0, 0, 0, '0:7940009')
+    await p.send_tag('P_TILE', 4, '', 0, 0, 1, '0:5', 'blankpurpl', 0, 0, 0, '0:7940010')
+    await p.send_tag('P_TILE', 5, '', 0, 0, 1, '0:6', 'blankwhite', 0, 0, 0, '0:7940011')
 
     await p.send_tag('P_PHYSICS', 0, 0, 0, 0, 0, 0, 0, 1)
     await p.send_tag('P_ASSETSCOMPLETE', p.id)

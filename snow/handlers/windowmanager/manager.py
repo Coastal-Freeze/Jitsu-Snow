@@ -3,7 +3,7 @@ from snow.events import FrameworkPacket, event, player_attribute
 import asyncio
 
 from snow.managers.battleroom import BattleRoom
-
+from loguru import logger
 
 async def join_battle(p):
     p.ninja = FireNinja
@@ -17,7 +17,7 @@ async def join_battle(p):
 
     await p.server.battles[p.session_id].add_penguin(p)
     while len(p.room.penguins) < 3:
-        p.logger.info('Waiting for Ninjas to join the Battle')
+        logger.info('Waiting for Ninjas to join the Battle')
         p.wait += 1
         if p.wait > 200:
             break
@@ -39,7 +39,7 @@ async def join_battle(p):
 @event.on(FrameworkPacket('windowReady'))
 async def handle_ready_window(p, windowId=None, **data):
     if windowId == 'cardjitsu_snowtimer.swf':
-        p.ready_object['timer_ready'] = True
+        p.timer_ready = True
         if p.room.is_ready('timer_ready'):
             await p.room.object_manager.show_moveable_tiles()
 

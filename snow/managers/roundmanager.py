@@ -72,11 +72,11 @@ class RoundManager:
                                      0, 0)
             await self.room.sound_manager.play_sound('0:1840009')
             await self.room.send_tag('O_ANIM', enemy_obj.id, enemy_obj.owner.idle_animation.value, 'loop',
-                                     enemy_obj.owner.idle_animationDuration.value, 1, 1, enemy_obj.id, i + 11, 0, 0)
+                                     enemy_obj.owner.idle_animation_duration.value, 1, 1, enemy_obj.id, i + 11, 0, 0)
         # 0 :100305: sly , 0:100297:tank, 0:100311: scrap
 
     async def show_round_notice(self):
-        self.room.penguins[0].server.logger.info(self.room.penguins)
+        logger.info(self.room.penguins)
         for penguin in self.room.penguins:
             await penguin.show_round_notice(self.round, self.bonus_criteria.value)
 

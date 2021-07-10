@@ -3,9 +3,10 @@ from snow.constants import TipType
 import snow.events
 
 @event.on(TagPacket('use'))
-@player_attribute(logged_in=True)
+
 async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: float):
     # p.logger.error('heal target: ' + p.room.object_manager.get_heal_target_by_id(p, tile_id))
+    tile_id = int(tile_id)
     ninjas = [4, 12, 13]
     if tile_id in ninjas and p.room.object_manager.get_penguin_by_id(tile_id) is not None:
         await p.room.object_manager.heal_penguin(p, tile_id)
@@ -23,18 +24,18 @@ async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: fl
 
 
 @event.on(FrameworkPacket('confirmClicked'))
-@player_attribute(logged_in=True)
+
 async def handle_show_confirm(p, **data):
     await p.room.object_manager.check_mark(p)
 
 
 @event.on(FrameworkPacket('ShowMemberCardInfoTip'))
-@player_attribute(logged_in=True)
+
 async def handle_member_revive_tip(p, **data):
     await p.show_tip(TipType.BONUS_REVIVE.value, bypass_tipmode=True)
     
 @event.on(FrameworkPacket('cardClick'))
-@player_attribute(logged_in=True)
+
 async def handle_select_card(p, cardId: int = 0, element: str = None, **data):
     ninja_element = p.ninja.card_element.value
     if element != ninja_element and element is None and not cardId:

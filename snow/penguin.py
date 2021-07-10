@@ -104,6 +104,9 @@ class Penguin(Client, penguin.Penguin):
     def member(self):
         return int(self.is_member)
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
     async def add_stamp(self, stamp, notify=True):
         if stamp.id in self.stamps:
             return False
