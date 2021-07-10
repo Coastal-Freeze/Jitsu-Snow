@@ -48,7 +48,37 @@ async def handle_ready_window(p, windowId=None, **data):
                 await p.room.show_tip(TipType.MOVE.value)
     elif windowId == 'cardjitsu_snowclose.swf':
         asyncio.create_task(join_battle(p))
+        
+@event.on(FrameworkPacket('windowManagerReady'))
+async def handle_window_manager_ready(p, **data):
+    fire_cnt, water_cnt, snow_cnt = 0, 0, 0
+    for card in p.cards.values():
+        card_info = p.server.attributes['cards'][card.card_id]
+        if card_info.power_id > 0:
+            if card_info.element == 'f': 
+                fire_cnt += card.quantity
+            elif card_info.element == 'w':
+                water_cnt += card.quantity
+            elif card_info.element == 's':
+                snow_cnt += card.quantity
 
+    await p.send_json(type='immediateAction', action='setWorldId', worldId=1)
+    await p.send_json(type='immediateAction', action='setBaseAssetUrl',
+                      baseAssetUrl=p.media_url + URLConstants.base_assets.value)
+    await p.send_json(type='immediateAction', action='setFontPath',
+                      defaultFontPath=p.media_url + URLConstants.base_fonts.value)
+    await p.send_json(type='playAction', action='skinRoomToRoom', url=p.media_url + URLConstants.loading_screen.value,
+                      className='', variant=0)
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='bottomLayer', \
+                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.error_handler.value, \
+                      xPercent=0, yPercent=0)
+    await p.send_json(action='loadWindow', assetPath='', initializationPayload={'game': 'snow', 'name': p.safe_name, \
+                                                                                'powerCardsFire': fire_cnt,
+                                                                                'powerCardsWater': water_cnt,
+                                                                                'powerCardsSnow': snow_cnt},
+                      layerName='topLayer', \
+                      loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.player_selection.value, \
+                      xPercent=0, yPercent=0)
 
 @event.on(FrameworkPacket('quit'))
 async def handle_quit(p, **data):

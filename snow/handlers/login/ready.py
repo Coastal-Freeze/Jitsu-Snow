@@ -31,7 +31,7 @@ async def handle_penguin_ready(p):
     await p.send_tag('W_INPUT', 'use', '4375706:1', 2, 3, 0, 'use')
     # input id | script id | mouse target | key mouse type | key modifier | command
 
-    for sprite in p.server.attrib['default_sprites']:
+    for sprite in p.server.default_sprites:
         await p.send_tag('S_LOADSPRITE', f'0:{sprite}')
 
     await p.send_tag('UI_CROSSWORLDSWFREF', 101, 0, 'WindowManagerSwf', 0, 0, 0, 0, 0,
@@ -68,8 +68,8 @@ async def handle_penguin_ready(p):
     await p.send_tag('UI_BGSPRITE', '-1:-1', 0, '0.000000', '0.000000')
 
     for tile in p.server.tiles:
-        await p.send_tag('P_TILE', tile.TileUrl.value, '', 0, 0, 1, tile.SpriteIndex.value, tile.TileName.value, 0, 0,
-                         0, tile.TileCollection.value)
+        await p.send_tag('P_TILE', tile.tile_url.value, '', 0, 0, 1, tile.sprite_index.value, tile.tile_name.value, 0, 0,
+                         0, tile.tile_collection.value)
 
     await p.send_tag('P_PHYSICS', 0, 0, 0, 0, 0, 0, 0, 1)
     await p.send_tag('P_ASSETSCOMPLETE', p.id)

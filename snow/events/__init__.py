@@ -105,19 +105,10 @@ class SmartEvent(awebus.EventMixin):
         loop = asyncio.get_running_loop()
 
         for handler in handlers:
-            type_check_success, _args, _kwargs = await self.__check_and_enforce_arg_type_hints(handler, *args, **kwargs)
-            if not type_check_success:
-                if True:
-                    logger.info(f"Event-Callback:{handler.__name__} type-hint incompatibility ignored. The function callback and all low-priority callback is not skipped.")
-                    _args, _kwargs = args, kwargs
-
-                else:
-                    break
-
             if _is_coro(handler):
-                awaitables.append(handler(*_args, **_kwargs))
+                awaitables.append(handler(*args, **kwargs))
             else:
-                functionWrapper = partial(handler, *_args, **_kwargs)
+                functionWrapper = partial(handler, *args, **kwargs)
                 awaitables.append(loop.run_in_executor(None, functionWrapper))
 
         if self.debug:

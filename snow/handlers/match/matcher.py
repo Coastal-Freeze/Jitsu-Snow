@@ -42,7 +42,7 @@ class SnowMatchMaking:
                 await penguin.send_tag('UI_BGSPRITE', '0:-1', 0, '1.000000', '1.000000')
 
     def add_penguin(self, p):
-        self._penguins[p.tile.Element.value].append(p)
+        self._penguins[p.tile.element.value].append(p)
 
     def remove_penguin(self, p):
-        self._penguins[p.tile.Element.value].remove(p)
+        self._penguins[p.tile.element.value].remove(p)

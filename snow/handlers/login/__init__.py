@@ -10,11 +10,16 @@ import ujson
 
 @event.on(TagPacket('/login'))
 async def snow_login(p, environment, p_id: int, token: str):
+    p_id = int(p_id)
+
     token = token.strip()
     server_token = ujson.loads(await p.server.redis.get(token))
 
     peng_id = int(server_token['player_id'])
 
+    logger.info(repr(peng_id))
+    logger.info(server_token)
+        
     if server_token is None or peng_id != p_id:
         logger.error(f'{p_id} failed to login L')
         await p.send_tag('S_LOGINDEBUG', 'user code 1000')
@@ -26,7 +31,7 @@ async def snow_login(p, environment, p_id: int, token: str):
         logger.info(f'{data.username} Is Logging IN!')
         p.update(**data.to_dict())
 
-        p.snow_ninja.muted = server_token['is_muted']
+        p.muted = server_token['is_muted']
 
         
         if p.id in p.server.penguins_by_id: # thank you dote

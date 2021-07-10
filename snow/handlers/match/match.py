@@ -26,3 +26,12 @@ async def handle_select_element(p, tipMode=False, element=None, **data):
 @event.on(FrameworkPacket('mmCancel'))
 async def handle_cancel_matchmaking(p, **data):
     p.server.attributes['snow_match_making'].remove_penguin(p)
+
+
+@event.on(FrameworkPacket('payloadBILogAction'))
+async def handle_payload_action(p, action, **data):
+    # TODO: handle tipmode and muted soundss
+    if action == 'funnel_prepare_to_battle_4':
+        await asyncio.sleep(5)  # Prepare to battle animation
+        await p.send_json(type='playAction', action='closeWindow',
+                          targetWindow=p.media_url + URLConstants.player_selection.value)

@@ -363,9 +363,9 @@ class URLConstants(enum.Enum):
     base_fonts = 'fonts/'
 
     close_window = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowclose.swf'
-    error_handler = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowerror_handler.swf'
-    external_interface = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowexternal_interfaceconnector.swf'
-    loading_screen = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/../assets/cjsnow_loading_screenassets.swf'
+    error_handler = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowerrorhandler.swf'
+    external_interface = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowexternalinterfaceconnector.swf'
+    loading_screen = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/../assets/cjsnow_loadingscreenassets.swf'
     player_selection = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowplayerselect.swf'
     snow_timer = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowtimer.swf'
     snow_ui = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowui.swf'

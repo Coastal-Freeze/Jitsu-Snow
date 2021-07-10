@@ -52,7 +52,9 @@ if __name__ == '__main__':
     args.lang = dict(en=Language.En, fr=Language.Fr, pt=Language.Pt,
                      es=Language.Es, de=Language.De, ru=Language.Ru).get(args.lang)
     factory_instance = Server(args)
+    loop = asyncio.get_event_loop()
     try:
-        asyncio.run(factory_instance.start())
+        loop.create_task(factory_instance.start())
+        loop.run_forever()
     except KeyboardInterrupt:
         logger.info('Shutting down...')
