@@ -2,7 +2,7 @@ from snow.events import event, FrameworkPacket, player_attribute
 from .matcher import SnowMatchMaking
 import asyncio
 
-from ...constants import FireNinja, WaterNinja, SnowNinja
+from ...constants import FireNinja, WaterNinja, SnowNinja, URLConstants
 
 
 @event.on("boot")
