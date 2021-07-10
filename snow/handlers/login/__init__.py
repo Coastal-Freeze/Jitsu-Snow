@@ -1,10 +1,11 @@
 from snow.constants import URLConstants
 from snow.data.ninja import PenguinCardCollection
 from snow.events import TagPacket, event
-import ujson
 from loguru import logger
-
 from snow.data.penguin import Penguin
+import ujson
+
+
 
 
 @event.on(TagPacket('/login'))
@@ -27,6 +28,25 @@ async def snow_login(p, environment, p_id: int, token: str):
 
         p.snow_ninja.muted = server_token['is_muted']
 
+        
+        if p.id in p.server.penguins_by_id: # thank you dote
+            await p.send_tag("S_LOGINDEBUG", "Already logged in")
+            await p.send_tag("S_LOGGEDIN")
+
+            p.attributes['force_login_event'] = asyncio.Event()
+            await wait_for_event(p.attributes['force_login_event'], 60) # wait for next 60 sec
+            
+            if p.attributes['force_login_event'].is_set():
+                try:
+                    await user.close(msg="Force disconnect from another login")
+                except Exception:
+                    pass
+                del p.attributes['force_login_event']
+            else:
+                await p.close(msg="connection timeout")
+                return
+
+
         p.cards = await PenguinCardCollection.get_collection(p.id)
         await p.send_tag('S_LOGINDEBUG', 'Finalizing login')
         await p.send_tag('S_LOGIN', p_id)
@@ -37,3 +57,16 @@ async def snow_login(p, environment, p_id: int, token: str):
         p.joined_world = True
 
         p.is_member = True
+
+        
+@event.on(TagPacket('/force_login'))
+async def force_login(p, environment, p_id: int, token: str):
+    p.attributes['force_login_event'].set()
+
+async def wait_for_event(evt, timeout):
+    try:
+        await asyncio.wait_for(evt.wait(), timeout)
+    except asyncio.TimeoutError:
+        pass
+
+    return evt.is_set()

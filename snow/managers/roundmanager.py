@@ -28,7 +28,7 @@ class RoundManager:
     def deal(self):
         for penguin in self.room.penguins:
             penguin_element = penguin.ninja.card_element.value
-            card_temp = [penguin.server.cards[card.card_id]
+            card_temp = [penguin.server.attributes['cards'][card.card_id]
                          for card in penguin.cards.values()
                          for _ in range(card.quantity + card.member_quantity)]
             penguin.cards = [card for card in card_temp

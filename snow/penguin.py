@@ -10,6 +10,8 @@ from loguru import logger
 
 class Penguin(Client, penguin.Penguin):
     __slots__ = (
+    
+        'attributes',
         'muted',
         'event_num',
 
@@ -53,6 +55,8 @@ class Penguin(Client, penguin.Penguin):
     def __init__(self, *args):
         super().__init__(*args)
 
+        self.attributes = {}
+    
         self.muted = False
         self.event_num = 101
 

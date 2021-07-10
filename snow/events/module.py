@@ -41,7 +41,11 @@ class MyEventHandler(AIOEventHandler):
     async def reload_package(self, package_path:str):
         package_path = pathlib.Path(package_path)
         relative_path = package_path.absolute().relative_to(self.parend_path_lib)
-        package_name = ".".join(relative_path.with_suffix("").parts)
+        
+        try:
+            package_name = ".".join(relative_path.with_suffix("").parts)
+        except ValueError:
+            return
 
         for module in list(self.modules):
             if module.__name__.startswith(package_name):
@@ -110,18 +114,16 @@ class MyEventHandler(AIOEventHandler):
         for im, name, ispkg in pkgutil.iter_modules(ms_path, prefix=f"{ms_name}."):
             hm = importlib.import_module(name, package=ms_path)
             if ispkg:
-                await self.loadModules(hm.__name__, hm.__path__)
+                await self.load_modules(hm.__name__, hm.__path__)
             else:
                 self.modules.append(hm)
 
 
 async def hot_reload_module(module:ModuleType):
-
     path = os.path.dirname(module.__file__)
     evh = MyEventHandler(module, debug=True)
-    
     await evh.load_modules()
-    
+
     watch = AIOWatchdog(path, event_handler=evh, recursive=True)
     __MODULE_WATCHERS__[module.__name__] = watch
     watch.start()

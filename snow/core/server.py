@@ -5,7 +5,7 @@ from loguru import logger
 
 from snow.constants import EmptyTile, OpenTile, EnemyTile, PenguinTile, OccupiedPenguinSpawnTile, \
     UnoccupiedPenguinSpawnTile, UnoccupiedEnemySpawnTile, OccupiedEnemySpawnTile, ObstacleTile
-from snow.core.client import Client
+from snow.penguin import Penguin
 from snow.data import db
 from snow.events import event
 from snow.events.module import hot_reload_module
@@ -28,8 +28,10 @@ class Server:
         self.config = config
         self.db = db
         self.peers_by_ip = {}
+        
+        self.attributes = {}
 
-        self.client_class = Client
+        self.client_class = Penguin
 
         self.penguins_by_id = {}
         self.penguins_by_username = {}
@@ -54,12 +56,12 @@ class Server:
             self.config.database_username, self.config.database_password,
             self.config.database_address,
             self.config.database_name))
-
-        logger.info('Booting Snow')
-
+            
         self.redis = await aioredis.create_redis_pool('redis://{}:{}'.format(
             self.config.redis_address, self.config.redis_port),
             minsize=5, maxsize=10)
+
+        logger.info('Booting Snow')
 
         await hot_reload_module(snow.handlers)
 
