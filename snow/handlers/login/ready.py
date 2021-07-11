@@ -1,6 +1,6 @@
 from snow.constants import URLConstants
 from snow.data.ninja import PenguinCardCollection
-from snow.events import TagPacket, event
+from snow.events import event, TagPacket, allow_once, has_attribute
 import ujson
 from loguru import logger
 
@@ -9,6 +9,8 @@ from snow.data.penguin import Penguin
 
 
 @event.on(TagPacket('/place_ready'))
+@has_attribute('joined_world')
+@allow_once
 async def handle_screen_ready(p):
     await p.send_tag('O_HERE', 4, '0:1', 5, 2.5, 0, 1, 0, 0, 0, '', '0:1', 0, 1, 0)
     await p.send_tag('O_PLAYER', 4, '')
@@ -21,6 +23,8 @@ async def handle_screen_ready(p):
 
 
 @event.on(TagPacket('/ready'))
+@has_attribute('joined_world')
+@allow_once
 async def handle_penguin_ready(p):
     # [W_INPUT]|use|4375706:1|2|3|0|use|
     await p.send_tag('W_INPUT', 'use', '4375706:1', 2, 3, 0, 'use')

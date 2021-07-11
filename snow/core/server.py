@@ -47,6 +47,9 @@ class Server:
         self.battles = {}
 
     async def start(self):
+    
+        logger.add('logs/log.log')
+    
         self.server = await asyncio.start_server(
             self.client_connected, self.config.address,
             self.config.port

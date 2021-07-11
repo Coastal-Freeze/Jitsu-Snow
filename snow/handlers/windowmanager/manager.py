@@ -1,5 +1,5 @@
 from snow.constants import TipType, WaterNinja, FireNinja, SnowNinja, URLConstants
-from snow.events import FrameworkPacket, event, player_attribute
+from snow.events import event, TagPacket, allow_once, has_attribute, FrameworkPacket
 import asyncio
 
 from snow.managers.battleroom import BattleRoom
@@ -50,6 +50,8 @@ async def handle_ready_window(p, windowId=None, **data):
         asyncio.create_task(join_battle(p))
         
 @event.on(FrameworkPacket('windowManagerReady'))
+@has_attribute('joined_world')
+@allow_once
 async def handle_window_manager_ready(p, **data):
     fire_cnt, water_cnt, snow_cnt = 0, 0, 0
     for card in p.cards.values():

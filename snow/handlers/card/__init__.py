@@ -1,5 +1,5 @@
 from snow.data.ninja import CardCollection, CardStarterDeck
-from snow.events import event, FrameworkPacket, player_attribute
+from snow.events import event, FrameworkPacket
 from loguru import logger
 
 @event.on('boot')

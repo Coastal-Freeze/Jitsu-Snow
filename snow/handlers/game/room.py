@@ -1,8 +1,9 @@
 from snow.constants import URLConstants
-from snow.events import event, TagPacket, FrameworkPacket
+from snow.events import event, TagPacket, allow_once, has_attribute, FrameworkPacket
 
 
 @event.on(FrameworkPacket('roomToRoomMinTime'))
+@has_attribute('joined_world')
 async def handle_joined_room(p, **kwargs):
     await p.send_json(action='loadWindow', assetPath='', initializationPayload=[None], layerName='bottomLayer', \
                       loadDescription='', type='playAction', windowUrl=p.media_url + URLConstants.close_window.value, \
@@ -11,6 +12,7 @@ async def handle_joined_room(p, **kwargs):
     
 
 @event.on(FrameworkPacket('roomToRoomComplete'))
+@has_attribute('joined_world')
 async def room_complete(p, **kwargs):
     for sprite in p.server.default_sprites:
         await p.send_tag('S_LOADSPRITE', f'0:{sprite}')
@@ -18,6 +20,7 @@ async def room_complete(p, **kwargs):
 
 
 @event.on(FrameworkPacket('windowClosed'))
+@has_attribute('joined_world')
 async def handle_window_closed(p, windowId, **data):
     if windowId == 'cardjitsu_snowrounds.swf':
         p.round_closed = True
@@ -26,6 +29,7 @@ async def handle_window_closed(p, windowId, **data):
 
 
 @event.on(FrameworkPacket('roomToRoomScreenClosed'))
+@has_attribute('joined_world')
 async def handle_successful_close(p, **kwargs):
     p.screen_closed = True
     if p.room.is_ready('screen_closed'):

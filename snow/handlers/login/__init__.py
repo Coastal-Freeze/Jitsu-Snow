@@ -1,6 +1,6 @@
 from snow.constants import URLConstants
 from snow.data.ninja import PenguinCardCollection
-from snow.events import TagPacket, event
+from snow.events import TagPacket, event, has_attribute, allow_once
 from loguru import logger
 from snow.data.penguin import Penguin
 import ujson
@@ -9,6 +9,8 @@ import ujson
 
 
 @event.on(TagPacket('/login'))
+@has_attribute('place_context')
+@allow_once
 async def snow_login(p, environment, p_id: int, token: str):
     p_id = int(p_id)
 
@@ -59,12 +61,14 @@ async def snow_login(p, environment, p_id: int, token: str):
         await p.send_tag('S_WORLD', 1, 'cjsnow_0', '0:0', 0, 'none', 0, p_id, 'cjsnow_0', 0, 87.5309, 0)
         await p.send_tag('W_DISPLAYSTATE')
         await p.send_tag('W_ASSETSCOMPLETE', p_id)
-        p.joined_world = True
+        p.attributes['joined_world'] = True
 
         p.is_member = True
 
         
 @event.on(TagPacket('/force_login'))
+@has_attribute('force_login_event')
+@allow_once
 async def force_login(p, environment, p_id: int, token: str):
     p.attributes['force_login_event'].set()
 
