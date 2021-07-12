@@ -8,3 +8,4 @@ uvloop; sys_platform != 'win32'
 numpy
 asyncio
 aioredis
+typeguard

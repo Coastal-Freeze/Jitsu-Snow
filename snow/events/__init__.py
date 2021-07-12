@@ -5,6 +5,7 @@ from enum import IntEnum
 from inspect import iscoroutinefunction
 from functools import partial
 from typing import Any, Callable, get_type_hints, List
+from typeguard import check_type
 
 def _is_coro( o ):
     """
