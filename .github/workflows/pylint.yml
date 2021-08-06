@@ -18,9 +18,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Lint with black
+    - name: Install Black
+      run: pip install black
+    - name: Run black --check snow/
+      run: black --check snow/
+    - name: If needed, commit black changes to the pull request
+      if: failure()
       run: |
-        pip install black
         black snow/
         git config --global user.name 'autoblack'
         git config --global user.email 'cclauss@users.noreply.github.com'
