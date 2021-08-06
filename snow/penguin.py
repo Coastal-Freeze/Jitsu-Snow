@@ -112,9 +112,25 @@ class Penguin(Client, penguin.Penguin):
             return False
 
         await self.stamps.insert(stamp_id=stamp.id)
+        
+        rank_tokens = {1:'easy', 2:'medium', 3:'hard', 4:'extreme'}
+
+        stamp_init_payload = {
+           "description":f"global_content.stamps.{stamp.id}.description",
+           "is_member":self.member,
+           "name": f"global_content.stamps.{stamp.id}.name",
+           "parent_group_id":8,
+           "rank":stamp.rank,
+           "rank_token":rank_tokens[stamp.rank],
+           "stampGroupId":stamp.group_id,
+           "stamp_id":stamp.id
+        };
 
         if notify:
-            await self.send_tag('aabs', stamp.id)
+            await self.send_json(action='loadWindow', assetPath='', initializationPayload=stamp_init_payload, layerName='bottomLayer',
+            loadDescription='', type='playAction',
+            windowUrl=self.media_url + URLConstants.stamp_earned.value,
+            xPercent=1, yPercent=1)
 
         logger.info(f'{self.username} earned stamp \'{stamp.name}\'')
         self.server.cache.delete(f'stamps.{self.id}')

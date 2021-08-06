@@ -230,7 +230,7 @@ class ObjectManager:
         adjusted_y = round(check_object.y + PenguinObject.y_coordinate_offset.value,
                            PenguinObject.y_coordinate_decimals.value)
         await p.room.send_tag('O_HERE', check_object.id, '0:1', adjusted_x, adjusted_y, 0, 1, 0, 0, 0,
-                              f'Actor{check_object.id}', '0:30049', 0, 0, 0)
+                              f'Actor{check_object.id}', '0:1', 0, 1, 0)
         await p.room.send_tag('O_SPRITE', check_object.id, '0:100195', 0)
         await p.room.sound_manager.play_sound('0:1840040')
         p.confirm = True
@@ -489,9 +489,11 @@ class ObjectManager:
 
             await p.send_tag('O_MOVE', player_obj.id, adjusted_x, adjusted_y, 128)
             await p.send_tag('P_TILECHANGE', player_obj.x, player_obj.y, OccupiedPenguinSpawnTile.tile_url.value)
-            await p.send_tag('O_ANIM', player_obj.id, player_obj.owner.idle_animation.value, 'loop',
-                             player_obj.owner.idle_animation_duration.value, 1, 0, player_obj.id, i + 1, 0, 0)
-
+            
+            await self.room.animation_manager.play_animation(penguin.tile,
+                                                             penguin.ninja.idle_animation.value, 'loop',
+                                                             penguin.ninja.idle_animation_duration.value)
+                                                             
             adjusted_x = round(player_hp_obj.x + player_hp_obj.parent.x_coordinate_offset.value,
                                player_hp_obj.parent.x_coordinate_decimals.value)
             adjusted_y = round(player_hp_obj.y + player_hp_obj.parent.y_coordinate_offset.value,
@@ -516,5 +518,6 @@ class Object:
 
     parent: 'typing.Any'
     owner: 'typing.Any'
+    server: 'typing.Any'
 
     damage: int = 0

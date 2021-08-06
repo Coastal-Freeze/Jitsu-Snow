@@ -68,11 +68,13 @@ class RoundManager:
             await self.room.send_tag('O_SPRITEANIM', enemy_hp_obj.id, 1, 1, 0, 'play_once', 0)
             await self.room.send_tag('O_SPRITE', enemy_hp_obj.id, '0:100395', 1, '')
 
-            await self.room.send_tag('O_ANIM', enemy_obj.id, '0:100379', 'play_once', 700, 1, 0, enemy_obj.id, i + 10,
-                                     0, 0)
+            await self.room.animation_manager.play_animation(enemy_obj, '0:100379', 
+                                                             'play_once', 700)
+                                                             
             await self.room.sound_manager.play_sound('0:1840009')
-            await self.room.send_tag('O_ANIM', enemy_obj.id, enemy_obj.owner.idle_animation.value, 'loop',
-                                     enemy_obj.owner.idle_animation_duration.value, 1, 1, enemy_obj.id, i + 11, 0, 0)
+            await self.room.animation_manager.play_animation(enemy_obj, 
+                                                             enemy_obj.owner.idle_animation.value, 
+                                                             'loop', enemy_obj.owner.idle_animation_duration.value)
         # 0 :100305: sly , 0:100297:tank, 0:100311: scrap
 
     async def show_round_notice(self):
@@ -111,12 +113,11 @@ class RoundManager:
     async def expire_timer(self):
         for p in self.room.object_manager.get_alive_ninjas():
             p.confirm = False
-        await self.room.object_manager.remove_movement_plans()
-        await self.hide_timer()
         await self.room.send_tag('S_LOADSPRITE', '0:100324')
         await self.room.send_tag('S_LOADSPRITE', '0:100342')
         await self.room.send_tag('S_LOADSPRITE', '0:100364')
         await self.increase_movement_stamina()
+        await self.hide_timer()
         await self.room.object_manager.do_move_action()
         await asyncio.sleep(3)
         await self.room.enemy_manager.do_enemy_turn()
@@ -138,14 +139,14 @@ class RoundManager:
                                   targetWindow=self.room.penguins[0].media_url + URLConstants.snow_timer.value,
                                   triggerName='skipToTransitionOut', type='immediateAction')
 
-        await self.room.object_manager.remove_movement_plans()
-
         await self.room.send_json(action='jsonPayload', jsonPayload=[None],
                                   targetWindow=self.room.penguins[0].media_url + URLConstants.snow_ui.value,
                                   triggerName='disableCards', type='immediateAction')
         await self.room.send_json(action='jsonPayload', jsonPayload=[None],
                                   targetWindow=self.room.penguins[0].media_url + URLConstants.snow_timer.value,
                                   triggerName='disableConfirm', type='immediateAction')
+                                  
+        await self.room.object_manager.remove_movement_plans()
 
     async def load_ui(self):
         for penguin in self.room.penguins:

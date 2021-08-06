@@ -370,6 +370,7 @@ class URLConstants(enum.Enum):
     snow_timer = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowtimer.swf'
     snow_ui = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/cardjitsu_snowui.swf'
     window_manager = 'minigames/cjsnow/en_US/deploy/swf/windowManager/windowmanager.swf'
+    stamp_earned = 'minigames/cjsnow/en_US/deploy/swf/ui/windows/stampearned.swf'
 
 
 CJ_SNOW_STAMPS = [{
