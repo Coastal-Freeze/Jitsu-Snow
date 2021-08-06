@@ -3,13 +3,12 @@ from secrets import token_hex
 
 
 class Crypto:
-
     @staticmethod
     def hash(undigested):
         if type(undigested) == str:
-            undigested = undigested.encode('utf-8')
+            undigested = undigested.encode("utf-8")
         elif type(undigested) == int:
-            undigested = str(undigested).encode('utf-8')
+            undigested = str(undigested).encode("utf-8")
         return md5(undigested).hexdigest()
 
     @staticmethod
@@ -28,7 +27,7 @@ class Crypto:
     def get_login_hash(password, rndk):
         key = Crypto.encrypt_password(password, False)
         key += rndk
-        key += 'Y(02.>\'H}t":E1'
+        key += "Y(02.>'H}t\":E1"
 
         login_hash = Crypto.encrypt_password(key)
 

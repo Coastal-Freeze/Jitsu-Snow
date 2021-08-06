@@ -7,7 +7,6 @@ from snow.managers.soundmanager import SoundManager
 
 
 class BattleRoom:
-
     def __init__(self, server):
         self.server = server
         self.game = False
@@ -20,13 +19,13 @@ class BattleRoom:
         self.enemy_manager = EnemyManager(self)
         self.player_manager = PlayerManager(self)
 
-    def is_ready(self, ready_type='ready'):
+    def is_ready(self, ready_type="ready"):
         ready = all(map(lambda p: p[ready_type], self.penguins))
         return ready
 
     def clear_ready(self):
         for penguin in self.penguins:
-            penguin['ready'] = False
+            penguin["ready"] = False
 
     async def increase_stamina(self):
         for penguin in self.penguins:

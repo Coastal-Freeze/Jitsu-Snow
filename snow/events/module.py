@@ -9,12 +9,11 @@ from loguru import logger
 from hachiko.hachiko import AIOWatchdog, AIOEventHandler
 from typing import List, Dict
 
-__MODULE_WATCHERS__:Dict[str, AIOWatchdog] = dict()
+__MODULE_WATCHERS__: Dict[str, AIOWatchdog] = dict()
 
 
 class MyEventHandler(AIOEventHandler):
-
-    def __init__(self, module, *, debug = True):
+    def __init__(self, module, *, debug=True):
         AIOEventHandler.__init__(self)
         self.parent_path = module.__path__
         self.parend_path_lib = pathlib.Path(module.__path__[-1])
@@ -38,10 +37,10 @@ class MyEventHandler(AIOEventHandler):
         await (self.reload_module(path) if not isdir else self.reload_package(path))
 
     @logger.catch
-    async def reload_package(self, package_path:str):
+    async def reload_package(self, package_path: str):
         package_path = pathlib.Path(package_path)
         relative_path = package_path.absolute().relative_to(self.parend_path_lib)
-        
+
         try:
             package_name = ".".join(relative_path.with_suffix("").parts)
         except ValueError:
@@ -50,11 +49,11 @@ class MyEventHandler(AIOEventHandler):
         for module in list(self.modules):
             if module.__name__.startswith(package_name):
                 self.modules.remove(module)
-                #await self.reload_module(module)
+                # await self.reload_module(module)
 
     @logger.catch
-    async def reload_module(self, module_path:str):
-        for module in self.modules: # search for module
+    async def reload_module(self, module_path: str):
+        for module in self.modules:  # search for module
             if module.__file__.startswith(module_path):
                 break
 
@@ -66,12 +65,16 @@ class MyEventHandler(AIOEventHandler):
         self.modules.remove(module)
         await self._reload_module(module)
 
-    async def _reload_module(self, module:ModuleType):
+    async def _reload_module(self, module: ModuleType):
         try:
             if not os.path.isfile(module.__file__):
                 return
 
-            list(delattr(module, attr) for attr in dir(module) if attr not in ('__name__', '__file__'))
+            list(
+                delattr(module, attr)
+                for attr in dir(module)
+                if attr not in ("__name__", "__file__")
+            )
             importlib.reload(module)
             self.modules.append(module)
 
@@ -79,10 +82,9 @@ class MyEventHandler(AIOEventHandler):
                 logger.debug(f"reloaded module: {module.__name__}")
         except:
             if self.debug:
-               logger.exception(f"failed to reload module: {module.__name__}") 
+                logger.exception(f"failed to reload module: {module.__name__}")
 
-
-    async def import_module(self, module_path:str):
+    async def import_module(self, module_path: str):
         try:
             if not os.path.isfile(module_path):
                 return
@@ -95,7 +97,7 @@ class MyEventHandler(AIOEventHandler):
             module_name = ".".join(relative_path.with_suffix("").parts)
             module_name = f"{self.parent_name}.{module_name}"
             mod = importlib.import_module(module_name, module_path)
-            
+
             self.modules.append(mod)
 
             if self.debug:
@@ -105,12 +107,12 @@ class MyEventHandler(AIOEventHandler):
                 logger.exception(f"failed to import module: {module_name}")
 
     @logger.catch
-    async def load_modules(self, scope = None, _path = None):
+    async def load_modules(self, scope=None, _path=None):
         if self.debug:
             logger.info(f"loading modules in {self.parent_name}")
 
         ms_path = self.parent_path if _path == None else _path
-        ms_name = self.parent_name if scope == None else scope.strip('.')
+        ms_name = self.parent_name if scope == None else scope.strip(".")
         for im, name, ispkg in pkgutil.iter_modules(ms_path, prefix=f"{ms_name}."):
             hm = importlib.import_module(name, package=ms_path)
             if ispkg:
@@ -119,7 +121,7 @@ class MyEventHandler(AIOEventHandler):
                 self.modules.append(hm)
 
 
-async def hot_reload_module(module:ModuleType):
+async def hot_reload_module(module: ModuleType):
     path = os.path.dirname(module.__file__)
     evh = MyEventHandler(module, debug=True)
     await evh.load_modules()

@@ -6,22 +6,25 @@ db = Gino()
 
 
 class AbstractDataCollection(Mapping):
-
     def __init__(self, filter_lookup=None):
         self.__collection = dict()
 
-        self.__model = getattr(self.__class__, '__model__')
-        self.__indexby = getattr(self.__class__, '__indexby__')
+        self.__model = getattr(self.__class__, "__model__")
+        self.__indexby = getattr(self.__class__, "__indexby__")
 
-        self.__filterby = getattr(self.__class__, '__filterby__')
+        self.__filterby = getattr(self.__class__, "__filterby__")
         self.__filter_lookup = getattr(self.__model, self.__filterby)
         self.__filter_lookup = filter_lookup or self.__filter_lookup
 
     def __delitem__(self, key):
-        raise TypeError(f'Use {self.__class__.__name__}.delete to remove an item from this collection')
+        raise TypeError(
+            f"Use {self.__class__.__name__}.delete to remove an item from this collection"
+        )
 
     def __setitem__(self, key, value):
-        raise TypeError(f'Use {self.__class__.__name__}.insert to add an item to this collection')
+        raise TypeError(
+            f"Use {self.__class__.__name__}.insert to add an item to this collection"
+        )
 
     def __len__(self):
         return len(self.__collection)
