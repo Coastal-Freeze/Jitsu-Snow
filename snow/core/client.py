@@ -44,7 +44,7 @@ class Client:
 
     async def send_policy_file(self):
         await self.send_line(
-            f'<cross-domain-policy><allow-access-from domain="*" to-ports="'
+            f'<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE cross-domain-policy SYSTEM "http://www.adobe.com/xml/dtds/cross-domain-policy.dtd"><cross-domain-policy><allow-access-from domain="*" to-ports="'
             f'{self.server.config.port}" /></cross-domain-policy>'
         )
         await self.close()

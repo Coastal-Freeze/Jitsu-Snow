@@ -87,6 +87,12 @@ class Penguin(db.Model):
     water_ninja_progress = db.Column(
         db.SmallInteger, nullable=False, server_default=db.text("0")
     )
+    snow_ninja_progress = db.Column(
+        db.SmallInteger, nullable=False, server_default=db.text("0")
+    )
+    snow_ninja_rank = db.Column(
+        db.SmallInteger, nullable=False, server_default=db.text("0")
+    )
     ninja_matches_won = db.Column(
         db.Integer, nullable=False, server_default=db.text("0")
     )
