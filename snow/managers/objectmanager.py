@@ -747,18 +747,13 @@ class ObjectManager:
             )
 
             await p.send_tag("O_MOVE", player_obj.id, adjusted_x, adjusted_y, 128)
-            await p.send_tag(
-                "P_TILECHANGE",
-                player_obj.x,
-                player_obj.y,
-                OccupiedPenguinSpawnTile.tile_url.value,
-            )
+            await p.send_tag("P_TILECHANGE", player_obj.x,player_obj.y, OccupiedPenguinSpawnTile.tile_url.value)
 
             await self.room.animation_manager.play_animation(
-                penguin.tile,
-                penguin.ninja.idle_animation.value,
+                p.tile,
+                p.ninja.idle_animation.value,
                 "loop",
-                penguin.ninja.idle_animation_duration.value,
+                p.ninja.idle_animation_duration.value,
             )
 
             adjusted_x = round(
