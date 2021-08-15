@@ -153,7 +153,7 @@ class Penguin(Client, penguin.Penguin):
                 type="playAction",
                 windowUrl=self.media_url + URLConstants.stamp_earned.value,
                 xPercent=0.1,
-                yPercent=0
+                yPercent=0,
             )
 
         logger.info(f"{self.username} earned stamp '{stamp.name}'")
