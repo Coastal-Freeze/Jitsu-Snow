@@ -102,20 +102,10 @@ class Penguin(Client, penguin.Penguin):
         return getattr(self, item)
 
     async def show_end_game(self, round):
-        game_stamps = [
-            stamp
-            for stamp in p.server.stamps.values()
-            if stamp.group_id == p.room.stamp_group
-        ]
+        game_stamps = [stamp for stamp in p.server.stamps.values() if stamp.group_id == p.room.stamp_group]
         collected_stamps = [stamp for stamp in game_stamps if stamp.id in p.stamps]
 
-        total_stamps = len(
-            [
-                stamp
-                for stamp in p.stamps.values()
-                if p.server.stamps[stamp.stamp_id].group_id
-            ]
-        )
+        total_stamps = len([stamp for stamp in p.stamps.values() if p.server.stamps[stamp.stamp_id].group_id])
         total_collected_stamps = len(collected_stamps)
         total_game_stamps = len(game_stamps)
 
@@ -126,7 +116,7 @@ class Penguin(Client, penguin.Penguin):
             "xpStart": self.start_xp,
             "xpEnd": self.snow_ninja_progress,
             "rank": 1,
-            "doubleCoins": False,
+            "doubleCoins": True if total_game_stamps == total_collected_stamps else False,
             "isBoss": 0,
             "round": round + 1,
             "damage": self.damage,

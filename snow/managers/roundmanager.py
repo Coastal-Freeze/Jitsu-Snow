@@ -81,47 +81,9 @@ class RoundManager:
                 enemy_obj.parent.y_coordinate_decimals.value,
             )
 
-            await self.room.send_tag(
-                "O_HERE",
-                enemy_obj.id,
-                enemy_obj.art_index,
-                adjusted_x,
-                adjusted_y,
-                0,
-                1,
-                0,
-                0,
-                0,
-                enemy_obj.name,
-                enemy_obj.template_id,
-                0,
-                1,
-                0,
-            )
-            await self.room.send_tag(
-                "P_TILECHANGE",
-                enemy_obj.x,
-                enemy_obj.y,
-                OccupiedEnemySpawnTile.tile_url.value,
-            )
-
-            await self.room.send_tag(
-                "O_HERE",
-                enemy_hp_obj.id,
-                enemy_hp_obj.art_index,
-                adjusted_x,
-                adjusted_y,
-                0,
-                1,
-                0,
-                0,
-                0,
-                enemy_hp_obj.name,
-                enemy_hp_obj.template_id,
-                0,
-                1,
-                0,
-            )
+            await self.room.send_tag("O_HERE", enemy_obj.id, enemy_obj.art_index, adjusted_x, adjusted_y, 0, 1, 0, 0, 0, enemy_obj.name, enemy_obj.template_id, 0, 1, 0)
+            await self.room.send_tag("P_TILECHANGE", enemy_obj.x, enemy_obj.y, OccupiedEnemySpawnTile.tile_url.value)
+            await self.room.send_tag("O_HERE", enemy_hp_obj.id, enemy_hp_obj.art_index, adjusted_x, adjusted_y, 0, 1, 0, 0, 0, enemy_hp_obj.name, enemy_hp_obj.template_id, 0, 1, 0)
             await self.room.send_tag(
                 "O_SPRITEANIM", enemy_hp_obj.id, 1, 1, 0, "play_once", 0
             )
