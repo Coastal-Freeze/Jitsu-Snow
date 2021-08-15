@@ -190,8 +190,9 @@ class RoundManager:
         await asyncio.sleep(3)
         await self.room.enemy_manager.do_enemy_turn()
         await asyncio.sleep(3)  # need to show tiles too
-        await self.room.object_manager.show_moveable_tiles()
-        await self.begin_timer()
+        if len(self.room.penguins) > 1:
+            await self.room.object_manager.show_moveable_tiles()
+            await self.begin_timer()
 
     async def show_timer(self):
         await self.room.send_json(
