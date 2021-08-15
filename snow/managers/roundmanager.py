@@ -6,7 +6,7 @@ from snow.constants import (
     RoundState,
     OccupiedEnemySpawnTile,
     URLConstants,
-    CJ_SNOW_STAMPS
+    CJ_SNOW_STAMPS,
 )
 from loguru import logger
 
@@ -60,10 +60,10 @@ class RoundManager:
 
         if not self.dealt:
             self.deal()
-            
+
         if self.round == 2:
             await self.end_game()
-            
+
     async def end_game(self):
         for p in self.room.penguins:
             await penguin.show_end_game(self.round)

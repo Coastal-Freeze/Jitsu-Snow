@@ -9,6 +9,7 @@ from loguru import logger
 
 import json
 
+
 class Penguin(Client, penguin.Penguin):
     __slots__ = (
         "attributes",
@@ -37,7 +38,7 @@ class Penguin(Client, penguin.Penguin):
         "muted",
         "cards_depleted",
         "login_key",
-        "start_xp"
+        "start_xp",
     )
 
     room: BattleRoom
@@ -82,7 +83,7 @@ class Penguin(Client, penguin.Penguin):
         self.confirm = False
         self.muted = False
         self.cards_depleted = False
-        
+
         self.start_xp = self.snow_ninja_progress.copy()
 
     @property
@@ -101,16 +102,38 @@ class Penguin(Client, penguin.Penguin):
         return getattr(self, item)
 
     async def show_end_game(self, round):
-        game_stamps = [stamp for stamp in p.server.stamps.values() if stamp.group_id == p.room.stamp_group]
+        game_stamps = [
+            stamp
+            for stamp in p.server.stamps.values()
+            if stamp.group_id == p.room.stamp_group
+        ]
         collected_stamps = [stamp for stamp in game_stamps if stamp.id in p.stamps]
 
-        total_stamps = len([stamp for stamp in p.stamps.values() if p.server.stamps[stamp.stamp_id].group_id])
+        total_stamps = len(
+            [
+                stamp
+                for stamp in p.stamps.values()
+                if p.server.stamps[stamp.stamp_id].group_id
+            ]
+        )
         total_collected_stamps = len(collected_stamps)
         total_game_stamps = len(game_stamps)
-        
+
         stamps = [{"_id": stamp.id, "new": stamp.recent} for stamp in collected_stamps]
-        
-        stamp_init_payload = {"coinsEarned": 0, "xpStart": self.start_xp, "xpEnd": self.snow_ninja_progress, "rank": 1, "doubleCoins": False, "isBoss": 0, "round": round + 1, "damage": self.damage, "showItems": 0, "stamps": stamps, "stampList": CJ_SNOW_STAMPS}
+
+        stamp_init_payload = {
+            "coinsEarned": 0,
+            "xpStart": self.start_xp,
+            "xpEnd": self.snow_ninja_progress,
+            "rank": 1,
+            "doubleCoins": False,
+            "isBoss": 0,
+            "round": round + 1,
+            "damage": self.damage,
+            "showItems": 0,
+            "stamps": stamps,
+            "stampList": CJ_SNOW_STAMPS,
+        }
         await self.send_json(
             action="loadWindow",
             assetPath="",
@@ -120,9 +143,8 @@ class Penguin(Client, penguin.Penguin):
             type="playAction",
             windowUrl=self.media_url + URLConstants.snow_payout.value,
             xPercent=0.08,
-            yPercent=0.05
+            yPercent=0.05,
         )
-
 
     async def add_stamp(self, stamp, notify=True):
         if stamp.id in self.stamps:
