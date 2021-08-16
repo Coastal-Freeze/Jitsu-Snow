@@ -70,6 +70,8 @@ async def snow_login(p, environment, p_id: int, token: str):
             87.5309,
             0,
         )
+        
+        p.stamps = await PenguinStampCollection.get_collection(p.id)
         await p.send_tag("W_DISPLAYSTATE")
         await p.send_tag("W_ASSETSCOMPLETE", p_id)
         p.attributes["joined_world"] = True

@@ -16,6 +16,8 @@ async def join_battle(p):
     if p.session_id not in p.server.battles:
         p.server.battles[p.session_id] = BattleRoom(p.server)
 
+    
+
     await p.server.battles[p.session_id].add_penguin(p)
     while len(p.room.penguins) < 3:
         logger.info("Waiting for Ninjas to join the Battle")
