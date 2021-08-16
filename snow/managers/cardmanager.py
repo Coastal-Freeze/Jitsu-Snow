@@ -133,9 +133,10 @@ class CardManager:
                 )
                 temp.append(anim2)
                 
-                
-                await asyncio.sleep(p.ninja.power_animation_duration.value / 1000)
-                
+                if 'power_animation_2_duration' in p.ninja._value2member_map_:
+                    await asyncio.sleep(p.ninja.power_animation_2_duration.value / 1000)
+                else:
+                    await asyncio.sleep(p.ninja.power_animation_duration.value / 1000)
                 
                 anim3 = self.object_manager.generate_object("0:1", "0:1", p.tile.x, p.tile.y + 2)
                 await self.room.animation_manager.play_animation(
@@ -146,8 +147,10 @@ class CardManager:
                 )
                 
                 temp.append(anim3)
-                
-                await asyncio.sleep(p.ninja.power_animation_duration.value / 1000)
+                if 'power_animation_3_duration' in p.ninja._value2member_map_:
+                    await asyncio.sleep(p.ninja.power_animation_3_duration.value / 1000)
+                else:
+                    await asyncio.sleep(p.ninja.power_animation_duration.value / 1000)
                 
                 powercard_area = [tile for tile in self.object_manager.get_tiles_from_range(x, y, 1)]
                 for tile in powercard_area:
