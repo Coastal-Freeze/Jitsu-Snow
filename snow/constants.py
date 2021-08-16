@@ -121,9 +121,9 @@ class SnowNinja(enum.Enum):
     heal_animation_duration = 1200
     power_animation = '0:100371'
     power_animation_duration = 3600
-    power_animation2 = '0:8740003'
+    power_animation2 = '0:100370'
     power_animation_2_duration = 2000
-    power_animation3 = '0:8740004'
+    power_animation3 = '0:8740003'
     power_animation_3_duration = 2000
 
 
