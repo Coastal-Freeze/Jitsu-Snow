@@ -24,6 +24,11 @@ class EnemyManager:
             if enemy.id == enemy_id:
                 self.current_enemies.remove(enemy)
 
+    def get_enemy_by_id(self, enemy_id):
+        for enemy in self.current_enemies:
+            if enemy.id == enemy_id:
+                return enemy
+
     def generate_enemies(self):
         self.object_manager.generate_enemies()
 
@@ -380,6 +385,7 @@ class Enemy:
 
     tile: "typing.Any"
     parent: "typing.Any"
+    drunk: bool = False
 
 
 @dataclass

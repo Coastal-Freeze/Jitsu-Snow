@@ -59,6 +59,7 @@ class FireNinja(enum.Enum):
     power_animation = "0:100378"
     power_animation_duration = 1500
     power_animation2 = "0:100345"
+    power_animation3 = "0:100344"
     
     
 
@@ -87,6 +88,10 @@ class WaterNinja(enum.Enum):
     knockout_animation = "0:100325"
     knockout_animation_loop = "0:100326"
     revive_animation = "0:100332"
+    power_animation = "0:100329"
+    power_animation_duration = 1500
+    power_animation2 = "0:100330"
+    power_animation3 = "0:100328"
 
 
 class SnowNinja(enum.Enum):
@@ -114,6 +119,10 @@ class SnowNinja(enum.Enum):
     knockout_animation_loop = "0:100366"
     heal_animation = "0:100363"
     heal_animation_duration = 1200
+    power_animation = '0:100371'
+    power_animation_duration = 3600
+    power_animation2 = '0:8740003'
+    power_animation3 = '0:8740004'
 
 
 ##########################
@@ -139,6 +148,7 @@ class EnemySly(enum.Enum):
     hit_animation_duration = 1200
     hit_animation_sound = "0:1840004"
     knockout_animation = "0:100309"
+    drunk_animation = "0:1840011"
 
 
 class EnemyTank(enum.Enum):
@@ -161,6 +171,7 @@ class EnemyTank(enum.Enum):
     hit_animation_duration = 1200
     hit_animation_sound = "0:1840003"
     knockout_animation = "0:100304"
+    drunk_animation = "0:1840010"
 
 
 class EnemyScrap(enum.Enum):
@@ -183,6 +194,7 @@ class EnemyScrap(enum.Enum):
     hit_animation_duration = 1200
     hit_animation_sound = "0:1840005"
     knockout_animation = "0:100320"
+    drunk_animation = "0:1840012"
 
 
 ##########################

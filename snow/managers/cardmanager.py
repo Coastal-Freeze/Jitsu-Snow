@@ -156,7 +156,19 @@ class CardManager:
                     await p.send_tag('O_SPRITE', damage.id, '0:100064', 0)
                     
                     if tile.owner in [EnemySly, EnemyScrap, EnemyTank]:
-                        await self.room.player_manager.player_damage(p, tile.owner, p.damage, player_animation=False)
+                        enemy = self.room.enemy_manager.get_enemy_by_id(tile.owner.id)
+                            
+                        await self.room.player_manager.player_damage(p, enemy, p.damage, player_animation=False)
+                        
+                        if p.ninja.element.value == 'fire':
+                            enemy.drunk = True
+                            await self.room.animation_manager.play_animation(
+                                enemy,
+                                enemy.owner.drunk_animation.value,
+                                "loop",
+                                enemy.owner.idle_animation.value
+                            )
+
                     
                     temp.append(damage)
                 
@@ -169,4 +181,6 @@ class CardManager:
                     "loop",
                     p.ninja.idle_animation_duration.value,
                 )
+                p.deck.remove(p.selected_card)
+                
         
