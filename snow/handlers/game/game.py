@@ -19,10 +19,16 @@ async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: fl
         tile = p.room.object_manager.get_tile_by_id(tile_id)
 
         if tile is not None and tile.id == tile_id:
+        
+            
             for sprite in p.server.move_sprites:
                 await p.room.send_tag("S_LOADSPRITE", f"0:{sprite}")
 
+
+            if p.selected_card is not None:
+                return await p.room.card_manager.select_tile(p, tile)
             await p.room.object_manager.plan_movement(p, tile)
+            
     elif p.room.object_manager.get_enemy_by_id(tile_id) is not None:
         await p.room.object_manager.select_enemy(p, tile_id)
 
@@ -45,5 +51,7 @@ async def handle_select_card(p, cardId: int = 0, element: str = None, **data):
     ninja_element = p.ninja.card_element.value
     if element != ninja_element and element is None and not cardId:
         return await p.send_tag("O_WOW", "you have no job don't you")
-
-    p.selected_card = p.server.attributes["cards"][cardId]
+    if p.selected_card is None:
+        p.selected_card = p.server.attributes["cards"][cardId]
+    else:
+        p.selected_card = None

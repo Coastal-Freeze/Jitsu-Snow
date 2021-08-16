@@ -58,6 +58,13 @@ async def handle_ready_window(p, windowId=None, **data):
     elif windowId == "cardjitsu_snowclose.swf":
         asyncio.create_task(join_battle(p))
 
+@event.on(FrameworkPacket("windowClosed"))
+@has_attribute("joined_world")
+async def handle_close_window(p, windowId=None, **data):
+    if windowId == 'cardjitsu_snowcombos.swf':
+        if p.room.is_ready("combo"):
+            await p.room.card_manager.do_powercard_animation()
+
 
 @event.on(FrameworkPacket("windowManagerReady"))
 @has_attribute("joined_world")

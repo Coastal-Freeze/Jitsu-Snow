@@ -56,6 +56,11 @@ class FireNinja(enum.Enum):
     selected_tile_animation = "0:30070"
     knockout_animation = "0:100356"
     knockout_animation_loop = "0:100357"
+    power_animation = "0:100378"
+    power_animation_duration = 1500
+    power_animation2 = "0:100345"
+    
+    
 
 
 class WaterNinja(enum.Enum):

@@ -213,7 +213,7 @@ class Penguin(Client, penguin.Penguin):
             color=card.color,
             description=card.description,
             element=card.element,
-            is_active=self.is_alive,
+            is_active=str(bool(self.is_alive)),
             label=card.name,
             name=card.name,
             power_id=card.power_id,

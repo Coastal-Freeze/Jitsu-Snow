@@ -87,26 +87,27 @@ class PlayerManager:
             "O_SPRITEANIM", hp_bar.id, health_bar - 12, health_bar, 0, "play_once", 500
         )
 
-    async def player_damage(self, p, enemy, damage):
+    async def player_damage(self, p, enemy, damage, player_animation = True):
         if enemy not in self.enemies:
             return
 
         ninja = p.ninja
-
-        await self.animation_manager.play_animation(
-            p.tile,
-            ninja.attack_animation.value,
-            "play_once",
-            ninja.attack_animation_duration.value,
-        )
-        await asyncio.sleep(ninja.attack_animation_duration.value * 0.001)
-        await self.animation_manager.play_animation(
-            p.tile,
-            ninja.idle_animation.value,
-            "loop",
-            ninja.idle_animation_duration.value,
-        )
-        await p.room.sound_manager.play_sound(ninja.attack_animation_sound.value)
+        if player_animation:
+            await self.animation_manager.play_animation(
+                p.tile,
+                ninja.attack_animation.value,
+                "play_once",
+                ninja.attack_animation_duration.value,
+            )
+            await asyncio.sleep(ninja.attack_animation_duration.value * 0.001)
+            await self.animation_manager.play_animation(
+                p.tile,
+                ninja.idle_animation.value,
+                "loop",
+                ninja.idle_animation_duration.value,
+            )
+            await p.room.sound_manager.play_sound(ninja.attack_animation_sound.value)
+           
         damage_number, tile_particle = self.object_manager.generate_damage_particle(
             enemy, enemy.x, enemy.y
         )
