@@ -76,7 +76,7 @@ class CardManager:
                 action='loadWindow',
                 initializationPayload={"data":elements},
                 layerName="bottomLayer",
-                type="playAction,
+                type="playAction",
                 assetPath="",
                 loadDescription="",
                 yPercent=0.5,
