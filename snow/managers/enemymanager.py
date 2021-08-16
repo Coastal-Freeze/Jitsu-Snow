@@ -39,35 +39,44 @@ class EnemyManager:
 
     async def do_enemy_turn(self):
         for enemy in self.current_enemies:
-            players = self.get_nearby_players(enemy.tile.x, enemy.tile.y)
-            if len(players) == 0:  # No surrounding users, let's move
-                distances = [
-                    np.linalg.norm(
-                        np.array([player.tile.x, player.tile.y])
-                        - np.array([enemy.tile.x, enemy.tile.y])
+            if not enemy.drunk:
+                players = self.get_nearby_players(enemy.tile.x, enemy.tile.y)
+                if len(players) == 0:  # No surrounding users, let's move
+                    distances = [
+                        np.linalg.norm(
+                            np.array([player.tile.x, player.tile.y])
+                            - np.array([enemy.tile.x, enemy.tile.y])
+                        )
+                        for player in self.room.penguins
+                        if player.is_alive
+                    ]
+                    player = self.room.penguins[
+                        distances.index(min(distances))
+                    ]  # Determine which player to follow
+                    nonoverlap_coordinate = self.object_manager.find_open_coordinate(
+                        player.tile.x, player.tile.x + 1, player.tile.y, player.tile.y + 1
                     )
-                    for player in self.room.penguins
-                    if player.is_alive
-                ]
-                player = self.room.penguins[
-                    distances.index(min(distances))
-                ]  # Determine which player to follow
-                nonoverlap_coordinate = self.object_manager.find_open_coordinate(
-                    player.tile.x, player.tile.x + 1, player.tile.y, player.tile.y + 1
+                    new_x, new_y = self.do_astar_algorithm(
+                        (enemy.tile.x, enemy.tile.y),
+                        (nonoverlap_coordinate[0], nonoverlap_coordinate[1]),
+                        tile_range=enemy.parent.range.value,
+                    )[1]
+
+                    await self.move_enemy(enemy, new_x, new_y)
+
+                else:  # Attack nearby user
+                    ninja = random.choice(players)
+                    penguin = self.object_manager.get_penguin_by_ninja_type(ninja)
+                    if penguin.is_alive:
+                        return await self.enemy_damage(penguin, enemy)
+            else:
+                enemy.drunk = False
+                await self.room.animation_manager.play_animation(
+                    enemy,
+                    enemy.parent.idle_animation.value,
+                    "loop",
+                    enemy.parent.idle_animation_duration.value,
                 )
-                new_x, new_y = self.do_astar_algorithm(
-                    (enemy.tile.x, enemy.tile.y),
-                    (nonoverlap_coordinate[0], nonoverlap_coordinate[1]),
-                    tile_range=enemy.parent.range.value,
-                )[1]
-
-                await self.move_enemy(enemy, new_x, new_y)
-
-            else:  # Attack nearby user
-                ninja = random.choice(players)
-                penguin = self.object_manager.get_penguin_by_ninja_type(ninja)
-                if penguin.is_alive:
-                    return await self.enemy_damage(penguin, enemy)
 
     async def enemy_damage(self, p, enemy):
         damage = enemy.parent.attack.value
