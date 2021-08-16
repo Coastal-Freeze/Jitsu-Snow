@@ -98,7 +98,7 @@ class Penguin(Client, penguin.Penguin):
         self.combo = False
         
 
-        self.start_xp = self.snow_ninja_progress.copy()
+        
 
     @property
     def safe_name(self):
@@ -124,12 +124,18 @@ class Penguin(Client, penguin.Penguin):
         total_game_stamps = len(game_stamps)
 
         stamps = [{"_id": stamp.id, "new": stamp.recent} for stamp in collected_stamps]
-
+        
+        self.start_xp = self.snow_ninja_progress.copy()
+        
+        await self.update(snow_ninja_progress=self.snow_ninja_progress + 5)
+        if self.snow_ninja_progress >= 100:
+            await self.update(snow_ninja_rank=self.snow_ninja_rank + 1)
+           
         stamp_init_payload = {
             "coinsEarned": 0,
             "xpStart": self.start_xp,
             "xpEnd": self.snow_ninja_progress,
-            "rank": 1,
+            "rank": self.snow_ninja_rank,
             "doubleCoins": True if total_game_stamps == total_collected_stamps else False,
             "isBoss": 0,
             "round": round + 1,
