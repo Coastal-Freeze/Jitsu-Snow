@@ -39,6 +39,12 @@ class Penguin(Client, penguin.Penguin):
         "cards_depleted",
         "login_key",
         "start_xp",
+        
+        "powercard_element_symbol",
+        "powercard_grid",
+        "powercard_position"
+        
+        
     )
 
     room: BattleRoom
