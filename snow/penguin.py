@@ -78,6 +78,10 @@ class Penguin(Client, penguin.Penguin):
         self.heal_target_objects = []
         self.last_object = None
         self.modified_object = []
+        
+        self.powercard_element_symbol = None
+        self.powercard_grid = None
+        self.powercard_position = (0, 0)
 
         self.tip_mode = False
         self.confirm = False
