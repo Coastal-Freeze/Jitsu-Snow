@@ -88,6 +88,7 @@ class CardManager:
     async def do_powercard_animation(self):
         
         for p in self.room.penguins:
+            p.combo = False
             temp = []
             if p.powercard_position is not None and p.selected_card is not None:
                 card_data = dict(

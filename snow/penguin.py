@@ -42,7 +42,9 @@ class Penguin(Client, penguin.Penguin):
         
         "powercard_element_symbol",
         "powercard_grid",
-        "powercard_position"
+        "powercard_position",
+        
+        "combo"
         
         
     )
@@ -93,6 +95,8 @@ class Penguin(Client, penguin.Penguin):
         self.confirm = False
         self.muted = False
         self.cards_depleted = False
+        self.combo = False
+        
 
         self.start_xp = self.snow_ninja_progress.copy()
 
