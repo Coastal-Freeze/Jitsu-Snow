@@ -96,21 +96,8 @@ class EnemyManager:
         )
 
         await self.room.send_tag(
-            "O_HERE",
-            tile_particle.id,
-            "0:1",
-            adjusted_x,
-            adjusted_y,
-            0,
-            1,
-            0,
-            0,
-            0,
-            f"Actor{tile_particle.id}",
-            "0:30059",
-            0,
-            0,
-            0,
+            "O_HERE", tile_particle.id, "0:1", adjusted_x, adjusted_y, 0, 1, 0, 0, 0,
+            tile_particle.name, "0:30059", 0, 0, 0
         )
         await self.room.send_tag("O_SPRITE", tile_particle.id, "0:100064", 0)
 
@@ -124,22 +111,10 @@ class EnemyManager:
         )
 
         await self.room.send_tag(
-            "O_HERE",
-            damage_number.id,
-            "0:1",
-            adjusted_x,
-            adjusted_y,
-            0,
-            1,
-            0,
-            0,
-            0,
-            f"Actor{damage_number.id}",
-            "0:30059",
-            0,
-            0,
-            0,
+            "O_HERE", damage_number.id, "0:1", adjusted_x, adjusted_y, 0, 1, 0, 0, 0,
+            damage_number.name, "0:30059", 0, 0, 0
         )
+
         await self.room.send_tag("O_SPRITE", damage_number.id, "0:100067", damage)
         await self.room.send_tag(
             "O_SPRITEANIM", damage_number.id, damage, damage + 4, 0, "play_once", 800

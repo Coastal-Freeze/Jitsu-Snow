@@ -4,6 +4,7 @@ from snow.managers.objectmanager import ObjectManager
 from snow.managers.playermanager import PlayerManager
 from snow.managers.roundmanager import RoundManager
 from snow.managers.soundmanager import SoundManager
+from snow.managers.cardmanager import CardManager
 
 
 class BattleRoom:
@@ -18,6 +19,7 @@ class BattleRoom:
         self.animation_manager = AnimationManager(self)
         self.enemy_manager = EnemyManager(self)
         self.player_manager = PlayerManager(self)
+        self.card_manager = CardManager(self)
 
     def is_ready(self, ready_type="ready"):
         ready = all(map(lambda p: p[ready_type], self.penguins))
