@@ -231,45 +231,24 @@ class ObjectManager:
         for player in self.get_alive_ninjas():
             await self.show_targets(player, player.tile.x, player.tile.y)
 
-            player.edited_objects = []
+            player.modified_objects = []
 
             potential_tiles = self.get_tiles_from_range(
                 player.tile.x, player.tile.y, tile_range=player.ninja.move.value
             )
             for tile in potential_tiles:
-                await player.send_tag(
-                    "O_SPRITE",
-                    tile.id,
-                    "0:100063" if tile.owner is None else "0:100270",
-                    "1",
-                )
-                player.edited_objects.append(tile.id)
+                await player.send_tag("O_SPRITE", tile.id, "0:100063" if tile.owner is None else "0:100270", "1")
+                player.modified_objects.append(tile.id)
 
-            edited_sprite_count.append(len(player.edited_objects))
+            edited_sprite_count.append(len(player.modified_objects))
 
         self.moveset_id = max(edited_sprite_count) + self.object_id
         self.object_id = self.moveset_id + 1
-        await self.room.send_tag(
-            "O_HERE",
-            self.moveset_id,
-            "0:100300",
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            f"Actor{self.moveset_id}",
-            "0:30038",
-            0,
-            0,
-            0,
-            f=self.is_player_dead(),
-        )
+        await self.room.send_tag("O_HERE", self.moveset_id, "0:100300", 0, 0, 0, 1, 0, 0, 0, f"Actor{self.moveset_id}", "0:30038", 0, 0, 0, f=self.is_player_dead())
 
     async def remove_movement_plans(self):
         await self.remove_available_tiles()
+        await self.room.card_manager.remove_tiles()
         await self.room.send_tag("O_GONE", self.moveset_id)
 
         for player in self.get_alive_ninjas():
@@ -285,7 +264,7 @@ class ObjectManager:
 
     async def remove_available_tiles(self):
         for player in self.get_alive_ninjas():
-            for tile_id in player.edited_objects:
+            for tile_id in player.modified_objects:
                 await player.send_tag("O_SPRITE", tile_id, "0:1", 1)
 
             for old_obj in player.target_objects:

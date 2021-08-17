@@ -33,6 +33,7 @@ class Penguin(Client, penguin.Penguin):
         "heal_target_objects",
         "last_object",
         "modified_objects",
+        "powercard_objects",
         "tip_mode",
         "confirm",
         "muted",
@@ -86,7 +87,8 @@ class Penguin(Client, penguin.Penguin):
         self.target_objects = []
         self.heal_target_objects = []
         self.last_object = None
-        self.modified_object = []
+        self.modified_objects = []
+        self.powercard_objects = []
         
         self.powercard_element_symbol = None
         self.powercard_grid = None

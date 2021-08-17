@@ -85,6 +85,28 @@ class CardManager:
             return
         await self.do_powercard_animation()
     
+    async def show_moveable_tiles(self):
+        for player in self.object_manager.get_alive_ninjas():
+            await self.room.object_manager.show_targets(player, player.tile.x, player.tile.y)
+
+            player.powercard_objects = []
+
+            potential_tiles = self.get_tiles_from_range(
+                player.tile.x, player.tile.y, tile_range=player.ninja.move.value
+            )
+            for tile in potential_tiles:
+                t = self.object_manager.generate_object("0:1", "0:1", tile.x, tile.y)
+                await self.room.send_tag("O_HERE", t.id, "0:1", t.x, t.y, 0, 1, 0, 0, 0, t.name, "0:1", 0, 1, 0)
+                
+                await player.send_tag("O_SPRITE", t.id, "0:100064", 0)
+                player.powercard_objects.append(t.id)
+ 
+    async def remove_tiles(self):
+        for player in self.object_manager.get_alive_ninjas():
+            if player.powercard_objects:
+                for tile in player.powercard_objects:
+                    await player.send_tag("O_GONE", tile)
+ 
     async def do_powercard_animation(self):
         
         for p in self.room.penguins:

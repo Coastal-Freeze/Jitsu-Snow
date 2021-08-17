@@ -9,18 +9,13 @@ async def handle_click_tile(p, tile_id: int, a: float, b: float, c: float, d: fl
     # p.logger.error('heal target: ' + p.room.object_manager.get_heal_target_by_id(p, tile_id))
     tile_id = int(tile_id)
     ninjas = [4, 12, 13]
-    if (
-        tile_id in ninjas
-        and p.room.object_manager.get_penguin_by_id(tile_id) is not None
-    ):
+    if tile_id in ninjas and p.room.object_manager.get_penguin_by_id(tile_id) is not None:
         await p.room.object_manager.heal_penguin(p, tile_id)
 
     elif tile_id <= p.room.object_manager.map[-1][-1].id:  # Is it a tile?
         tile = p.room.object_manager.get_tile_by_id(tile_id)
 
         if tile is not None and tile.id == tile_id:
-        
-            
             for sprite in p.server.move_sprites:
                 await p.room.send_tag("S_LOADSPRITE", f"0:{sprite}")
 
@@ -53,5 +48,7 @@ async def handle_select_card(p, cardId: int = 0, element: str = None, **data):
         return await p.send_tag("O_WOW", "you have no job don't you")
     if p.selected_card is None:
         p.selected_card = p.server.attributes["cards"][cardId]
+        await p.room.card_manager.show_moveable_tiles()
     else:
         p.selected_card = None
+        await p.room.card_manager.remove_tiles()
