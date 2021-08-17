@@ -3,6 +3,7 @@ from snow.data.ninja import PenguinCardCollection
 from snow.events import TagPacket, event, has_attribute, allow_once
 from loguru import logger
 from snow.data.penguin import Penguin
+from snow.data.stamp import PenguinStampCollection
 import ujson
 
 

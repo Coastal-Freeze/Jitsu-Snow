@@ -799,6 +799,5 @@ class Object:
 
     parent: "typing.Any"
     owner: "typing.Any"
-    server: "typing.Any"
 
     damage: int = 0
