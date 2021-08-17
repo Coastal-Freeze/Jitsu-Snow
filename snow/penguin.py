@@ -44,7 +44,8 @@ class Penguin(Client, penguin.Penguin):
         "powercard_grid",
         "powercard_position",
         
-        "combo"
+        "combo",
+        "selected_card"
         
         
     )
@@ -90,6 +91,7 @@ class Penguin(Client, penguin.Penguin):
         self.powercard_element_symbol = None
         self.powercard_grid = None
         self.powercard_position = (0, 0)
+        self.selected_card = None
 
         self.tip_mode = False
         self.confirm = False

@@ -20,8 +20,8 @@ class BonusRoundType(enum.Enum):
 
 
 class TipType(enum.Enum):
-    move = "Move"
-    attack = "attack"
+    MOVE = "Move"
+    ATTACK = "attack"
     POWER_CARD = "Card"
     HEAL = "Heal"
     TIMER = "Confirm"
