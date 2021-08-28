@@ -102,11 +102,8 @@ class Server:
             )
         )
 
-        self.redis = aioredis.ConnectionPool.from_url(
-            "redis://{}:{}".format(self.config.redis_address, self.config.redis_port),
-            minsize=5,
-            maxsize=10,
-        )
+        pool = aioredis.ConnectionPool.from_url("redis://{}:{}".format(self.config.redis_address, self.config.redis_port))
+        self.redis = aioredis.Redis(connection_pool=pool)
 
         logger.info("Booting Snow")
 
