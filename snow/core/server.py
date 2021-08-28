@@ -102,7 +102,7 @@ class Server:
             )
         )
 
-        self.redis = await aioredis.create_redis_pool(
+        self.redis = aioredis.ConnectionPool.from_url(
             "redis://{}:{}".format(self.config.redis_address, self.config.redis_port),
             minsize=5,
             maxsize=10,
