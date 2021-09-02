@@ -259,8 +259,8 @@ class ObjectManager:
                         self.temp_objects.remove(potential_player)
 
         for check_mark in self.check_marks:
-            await self.room.send_tag("O_GONE", check_mark.id)
-            self.check_marks.remove(check_mark)
+            await self.room.send_tag("O_GONE", check_mark.id) 
+        self.check_marks.clear()
 
     async def remove_available_tiles(self):
         for player in self.get_alive_ninjas():
