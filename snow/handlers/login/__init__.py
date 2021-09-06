@@ -10,7 +10,7 @@ import ujson
 @event.on(TagPacket("/login"))
 @has_attribute("place_context")
 @allow_once
-async def snow_login(p, environment, p_id: int, token: str):
+async def snow_login(p, environment, p_id: str, token: str):
     p_id = int(p_id)
 
     token = token.strip()
