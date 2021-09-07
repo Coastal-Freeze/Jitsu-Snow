@@ -1,3 +1,4 @@
+import asyncio
 from snow.constants import URLConstants
 from snow.data.ninja import PenguinCardCollection
 from snow.events import TagPacket, event, has_attribute, allow_once
