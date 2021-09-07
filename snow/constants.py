@@ -60,6 +60,7 @@ class FireNinja(enum.Enum):
     power_animation_duration = 1500
     power_animation2 = "0:100345"
     power_animation3 = "0:100344"
+    attack_powercard_sound = "0:1840025"
     
     
 
@@ -92,6 +93,7 @@ class WaterNinja(enum.Enum):
     power_animation_duration = 1500
     power_animation2 = "0:100330"
     power_animation3 = "0:100328"
+    attack_powercard_sound = "0:1840023"
 
 
 class SnowNinja(enum.Enum):
@@ -125,6 +127,7 @@ class SnowNinja(enum.Enum):
     power_animation_2_duration = 2000
     power_animation3 = '0:8740003'
     power_animation_3_duration = 2000
+    attack_powercard_sound = "0:1840024"
 
 
 ##########################
