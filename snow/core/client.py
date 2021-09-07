@@ -44,7 +44,7 @@ class Client:
 
     async def send_policy_file(self):
         await self.send_line(
-            f'<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE cross-domain-policy SYSTEM "http://www.adobe.com/xml/dtds/cross-domain-policy.dtd"><cross-domain-policy><allow-access-from domain="*" to-ports="'
+            f'<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE cross-domain-policy SYSTEM "https://www.adobe.com/xml/dtds/cross-domain-policy.dtd"><cross-domain-policy><allow-access-from domain="*" to-ports="'
             f'{self.server.config.port}" /></cross-domain-policy>'
         )
         await self.close()
@@ -96,6 +96,7 @@ class Client:
             (msg if msg is not None else "connection closed cleanly"),
             -1,
         )
+        self.server.penguins_by_id.pop(self.id, None)
         self.__writer.close()
         await self.__writer.wait_closed()
         await self._client_disconnected()
