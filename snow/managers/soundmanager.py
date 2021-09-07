@@ -7,7 +7,7 @@ class SoundManager:
 
     async def play_sound(self, sound_index):
         for player in self.room.penguins:
-            if not player.muted:
+            if not eval(player.muted.title()):
                 await player.send_tag(
                     "FX_PLAYSOUND", sound_index, self.sound_id, 0, 100, -1, 0, -1
                 )
@@ -15,7 +15,7 @@ class SoundManager:
         self.sound_id += 1
 
     async def play_individual_sound(self, player, sound_index):
-        if not player.muted:
+        if not eval(player.muted.title()):
             await player.send_tag(
                 "FX_PLAYSOUND", sound_index, self.sound_id, 0, 100, -1, 0, -1
             )
